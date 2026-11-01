@@ -1,0 +1,974 @@
+{
+  "_nota": "Mundo de 640x360, origen arriba-izquierda. Cada sprite se pinta con 'paint' (src/art/painters.js) o se reemplaza con 'file' (ruta en /public, ej. 'sprites/silla.png'). Plano cerrado visible: x 60-380, y 140-252.",
+  "world": {
+    "width": 640,
+    "height": 360
+  },
+  "sprites": {
+    "pared": {
+      "w": 640,
+      "h": 236,
+      "paint": "wall",
+      "file": null
+    },
+    "piso": {
+      "w": 640,
+      "h": 124,
+      "paint": "floor",
+      "file": null
+    },
+    "lampara_techo": {
+      "w": 40,
+      "h": 14,
+      "paint": "ceilingLamp",
+      "file": null
+    },
+    "estante": {
+      "w": 100,
+      "h": 4,
+      "paint": "shelf",
+      "file": null
+    },
+    "cuadro_ciudad": {
+      "w": 22,
+      "h": 14,
+      "paint": "frame",
+      "args": [
+        "city"
+      ],
+      "file": null
+    },
+    "cuadro_rayas": {
+      "w": 26,
+      "h": 14,
+      "paint": "frame",
+      "args": [
+        "stripes"
+      ],
+      "file": null
+    },
+    "cuadro_cielo": {
+      "w": 22,
+      "h": 14,
+      "paint": "frame",
+      "args": [
+        "sky"
+      ],
+      "file": null
+    },
+    "icono_persona": {
+      "w": 14,
+      "h": 16,
+      "paint": "iconFrame",
+      "args": [
+        "persona"
+      ],
+      "file": null
+    },
+    "icono_grilla": {
+      "w": 14,
+      "h": 16,
+      "paint": "iconFrame",
+      "args": [
+        "grilla"
+      ],
+      "file": null
+    },
+    "icono_taza": {
+      "w": 14,
+      "h": 16,
+      "paint": "iconFrame",
+      "args": [
+        "taza"
+      ],
+      "file": null
+    },
+    "reloj": {
+      "w": 11,
+      "h": 11,
+      "paint": "clock",
+      "file": null
+    },
+    "ventana_vidrio": {
+      "w": 54,
+      "h": 62,
+      "paint": "windowGlass",
+      "file": null
+    },
+    "ventana_marco": {
+      "w": 60,
+      "h": 68,
+      "paint": "windowFrame",
+      "file": null
+    },
+    "lluvia": {
+      "w": 16,
+      "h": 16,
+      "paint": "rain",
+      "file": null
+    },
+    "libros": {
+      "w": 20,
+      "h": 30,
+      "paint": "books",
+      "file": null
+    },
+    "torre": {
+      "w": 22,
+      "h": 38,
+      "paint": "tower",
+      "file": null
+    },
+    "escritorio_top": {
+      "w": 350,
+      "h": 6,
+      "paint": "deskTop",
+      "file": null
+    },
+    "escritorio_frente": {
+      "w": 350,
+      "h": 54,
+      "paint": "deskFront",
+      "file": null
+    },
+    "escritorio2_top": {
+      "w": 236,
+      "h": 6,
+      "paint": "deskTop",
+      "file": null
+    },
+    "escritorio2_frente": {
+      "w": 236,
+      "h": 54,
+      "paint": "deskFront",
+      "file": null
+    },
+    "cajonera": {
+      "w": 40,
+      "h": 48,
+      "paint": "drawers",
+      "file": null
+    },
+    "monitor_a": {
+      "w": 60,
+      "h": 46,
+      "paint": "monitor",
+      "file": null
+    },
+    "pantalla_a": {
+      "w": 56,
+      "h": 36,
+      "paint": "screen",
+      "args": [
+        "code"
+      ],
+      "file": null
+    },
+    "monitor_b": {
+      "w": 70,
+      "h": 50,
+      "paint": "monitor",
+      "file": null
+    },
+    "pantalla_b": {
+      "w": 66,
+      "h": 40,
+      "paint": "screen",
+      "args": [
+        "tracks"
+      ],
+      "file": null
+    },
+    "lampara": {
+      "w": 14,
+      "h": 32,
+      "paint": "lamp",
+      "file": null
+    },
+    "julian_cabeza": {
+      "w": 18,
+      "h": 19,
+      "paint": "head",
+      "args": [
+        "noche",
+        "piel"
+      ],
+      "file": null
+    },
+    "julian_cuerpo": {
+      "w": 40,
+      "h": 50,
+      "paint": "body",
+      "args": [
+        "gris_azul"
+      ],
+      "file": null
+    },
+    "silla": {
+      "w": 36,
+      "h": 88,
+      "paint": "chair",
+      "file": null,
+      "args": [
+        56
+      ]
+    },
+    "federico_cabeza": {
+      "w": 18,
+      "h": 19,
+      "paint": "head",
+      "args": [
+        "madera_cla",
+        "piel"
+      ],
+      "file": null
+    },
+    "federico_cuerpo": {
+      "w": 40,
+      "h": 50,
+      "paint": "body",
+      "args": [
+        "verde_osc"
+      ],
+      "file": null
+    },
+    "taza_blanca": {
+      "w": 7,
+      "h": 8,
+      "paint": "mug",
+      "args": [
+        "blanco"
+      ],
+      "file": null
+    },
+    "taza_hueso": {
+      "w": 7,
+      "h": 8,
+      "paint": "mug",
+      "args": [
+        "hueso"
+      ],
+      "file": null
+    },
+    "taza_roja": {
+      "w": 7,
+      "h": 8,
+      "paint": "mug",
+      "args": [
+        "rojo"
+      ],
+      "file": null
+    },
+    "papeles": {
+      "w": 24,
+      "h": 6,
+      "paint": "papers",
+      "args": [
+        "blanco",
+        "hueso"
+      ],
+      "file": null
+    },
+    "papeles_hueso": {
+      "w": 24,
+      "h": 6,
+      "paint": "papers",
+      "args": [
+        "hueso",
+        "gris_cla"
+      ],
+      "file": null
+    },
+    "papel_chico": {
+      "w": 16,
+      "h": 4,
+      "paint": "papers",
+      "args": [
+        "blanco",
+        "hueso"
+      ],
+      "file": null
+    },
+    "postit_amarillo": {
+      "w": 5,
+      "h": 5,
+      "paint": "postit",
+      "args": [
+        "amarillo"
+      ],
+      "file": null
+    },
+    "postit_naranja": {
+      "w": 5,
+      "h": 5,
+      "paint": "postit",
+      "args": [
+        "naranja"
+      ],
+      "file": null
+    },
+    "postit_rosa": {
+      "w": 5,
+      "h": 5,
+      "paint": "postit",
+      "args": [
+        "rosa"
+      ],
+      "file": null
+    },
+    "envoltorio": {
+      "w": 8,
+      "h": 4,
+      "paint": "wrapper",
+      "file": null
+    },
+    "ropa_saco": {
+      "w": 40,
+      "h": 14,
+      "paint": "jacket",
+      "file": null
+    },
+    "ropa_bufanda": {
+      "w": 6,
+      "h": 28,
+      "paint": "scarf",
+      "file": null
+    },
+    "ropa_sweater": {
+      "w": 34,
+      "h": 8,
+      "paint": "sweater",
+      "file": null
+    },
+    "maceta": {
+      "w": 18,
+      "h": 20,
+      "paint": "pot",
+      "file": null
+    },
+    "planta": {
+      "w": 34,
+      "h": 44,
+      "paint": "plant",
+      "file": null
+    },
+    "sombra": {
+      "w": 26,
+      "h": 64,
+      "paint": "shadow",
+      "file": null
+    },
+    "brillo": {
+      "w": 170,
+      "h": 96,
+      "paint": "glow",
+      "file": null
+    },
+    "brazo": {
+      "w": 46,
+      "h": 7,
+      "paint": "arm",
+      "args": [
+        "verde_osc"
+      ],
+      "file": null
+    },
+    "mano": {
+      "w": 8,
+      "h": 8,
+      "paint": "hand",
+      "file": null
+    },
+    "menu_atras": {
+      "w": 320,
+      "h": 180,
+      "paint": "city",
+      "args": [
+        "back",
+        "base"
+      ],
+      "file": null
+    },
+    "menu_atras_luces": {
+      "w": 320,
+      "h": 180,
+      "paint": "city",
+      "args": [
+        "back",
+        "lights"
+      ],
+      "file": null
+    },
+    "menu_frente": {
+      "w": 320,
+      "h": 180,
+      "paint": "city",
+      "args": [
+        "front",
+        "base"
+      ],
+      "file": null
+    },
+    "menu_frente_luces": {
+      "w": 320,
+      "h": 180,
+      "paint": "city",
+      "args": [
+        "front",
+        "lights"
+      ],
+      "file": null
+    },
+    "menu_auto_rojo": {
+      "w": 11,
+      "h": 5,
+      "paint": "car",
+      "args": [
+        "rojo"
+      ],
+      "file": null
+    },
+    "menu_auto_azul": {
+      "w": 11,
+      "h": 5,
+      "paint": "car",
+      "args": [
+        "pantalla"
+      ],
+      "file": null
+    },
+    "menu_auto_blanco": {
+      "w": 11,
+      "h": 5,
+      "paint": "car",
+      "args": [
+        "hueso"
+      ],
+      "file": null
+    },
+    "menu_auto_verde": {
+      "w": 11,
+      "h": 5,
+      "paint": "car",
+      "args": [
+        "ventana_verde"
+      ],
+      "file": null
+    },
+    "menu_tren": {
+      "w": 126,
+      "h": 8,
+      "paint": "train",
+      "file": null
+    },
+    "menu_ave_1": {
+      "w": 5,
+      "h": 3,
+      "paint": "bird",
+      "args": [
+        1
+      ],
+      "file": null
+    },
+    "menu_ave_2": {
+      "w": 5,
+      "h": 3,
+      "paint": "bird",
+      "args": [
+        2
+      ],
+      "file": null
+    }
+  },
+  "static": [
+    {
+      "sprite": "pared",
+      "x": 0,
+      "y": 0,
+      "depth": 0
+    },
+    {
+      "sprite": "piso",
+      "x": 0,
+      "y": 236,
+      "depth": 0
+    },
+    {
+      "sprite": "lampara_techo",
+      "x": 110,
+      "y": 0,
+      "depth": 1
+    },
+    {
+      "sprite": "lampara_techo",
+      "x": 300,
+      "y": 0,
+      "depth": 1
+    },
+    {
+      "sprite": "lampara_techo",
+      "x": 500,
+      "y": 0,
+      "depth": 1
+    },
+    {
+      "sprite": "maceta",
+      "x": 14,
+      "y": 292,
+      "depth": 6
+    },
+    {
+      "sprite": "planta",
+      "x": 6,
+      "y": 250,
+      "depth": 5
+    },
+    {
+      "sprite": "estante",
+      "x": 62,
+      "y": 163,
+      "depth": 2
+    },
+    {
+      "sprite": "cuadro_ciudad",
+      "x": 66,
+      "y": 149,
+      "depth": 2
+    },
+    {
+      "sprite": "cuadro_rayas",
+      "x": 92,
+      "y": 149,
+      "depth": 2
+    },
+    {
+      "sprite": "cuadro_cielo",
+      "x": 122,
+      "y": 149,
+      "depth": 2
+    },
+    {
+      "sprite": "reloj",
+      "x": 168,
+      "y": 152,
+      "depth": 2
+    },
+    {
+      "sprite": "icono_persona",
+      "x": 222,
+      "y": 150,
+      "depth": 2
+    },
+    {
+      "sprite": "icono_grilla",
+      "x": 243,
+      "y": 150,
+      "depth": 2
+    },
+    {
+      "sprite": "icono_taza",
+      "x": 264,
+      "y": 150,
+      "depth": 2
+    },
+    {
+      "id": "ventana",
+      "sprite": "ventana_vidrio",
+      "x": 343,
+      "y": 149,
+      "depth": 1
+    },
+    {
+      "sprite": "ventana_marco",
+      "x": 340,
+      "y": 146,
+      "depth": 3
+    },
+    {
+      "sprite": "escritorio_frente",
+      "x": 40,
+      "y": 226,
+      "depth": 10
+    },
+    {
+      "sprite": "escritorio_top",
+      "x": 40,
+      "y": 220,
+      "depth": 11
+    },
+    {
+      "sprite": "cajonera",
+      "x": 70,
+      "y": 232,
+      "depth": 11
+    },
+    {
+      "sprite": "libros",
+      "x": 64,
+      "y": 193,
+      "depth": 12
+    },
+    {
+      "sprite": "torre",
+      "x": 88,
+      "y": 185,
+      "depth": 12
+    },
+    {
+      "sprite": "monitor_a",
+      "x": 184,
+      "y": 177,
+      "depth": 12
+    },
+    {
+      "id": "pantalla_a",
+      "sprite": "pantalla_a",
+      "x": 186,
+      "y": 179,
+      "depth": 13
+    },
+    {
+      "sprite": "monitor_b",
+      "x": 246,
+      "y": 173,
+      "depth": 12
+    },
+    {
+      "id": "pantalla",
+      "sprite": "pantalla_b",
+      "x": 248,
+      "y": 175,
+      "depth": 13
+    },
+    {
+      "sprite": "lampara",
+      "x": 318,
+      "y": 191,
+      "depth": 12
+    },
+    {
+      "id": "julian_cuerpo",
+      "sprite": "julian_cuerpo",
+      "x": 252,
+      "y": 198,
+      "depth": 20
+    },
+    {
+      "id": "julian_cabeza",
+      "sprite": "julian_cabeza",
+      "x": 263,
+      "y": 181,
+      "depth": 21
+    },
+    {
+      "sprite": "silla",
+      "x": 254,
+      "y": 206,
+      "depth": 22
+    },
+    {
+      "sprite": "escritorio2_frente",
+      "x": 404,
+      "y": 226,
+      "depth": 10
+    },
+    {
+      "sprite": "escritorio2_top",
+      "x": 404,
+      "y": 220,
+      "depth": 11
+    },
+    {
+      "sprite": "monitor_a",
+      "x": 470,
+      "y": 177,
+      "depth": 12
+    },
+    {
+      "sprite": "pantalla_a",
+      "x": 472,
+      "y": 179,
+      "depth": 13
+    },
+    {
+      "sprite": "lampara",
+      "x": 540,
+      "y": 191,
+      "depth": 12
+    },
+    {
+      "sprite": "taza_blanca",
+      "x": 530,
+      "y": 215,
+      "depth": 14
+    },
+    {
+      "sprite": "torre",
+      "x": 604,
+      "y": 185,
+      "depth": 12
+    },
+    {
+      "id": "federico_cuerpo",
+      "sprite": "federico_cuerpo",
+      "x": 474,
+      "y": 198,
+      "depth": 20
+    },
+    {
+      "id": "federico_cabeza",
+      "sprite": "federico_cabeza",
+      "x": 485,
+      "y": 181,
+      "depth": 21
+    },
+    {
+      "sprite": "silla",
+      "x": 476,
+      "y": 206,
+      "depth": 22,
+      "id": "federico_silla"
+    }
+  ],
+  "deskObjects": {
+    "taza_1": {
+      "sprite": "taza_blanca",
+      "x": 232,
+      "y": 215,
+      "depth": 15,
+      "visible": true
+    },
+    "taza_2": {
+      "sprite": "taza_hueso",
+      "x": 176,
+      "y": 215,
+      "depth": 15
+    },
+    "taza_3": {
+      "sprite": "taza_roja",
+      "x": 167,
+      "y": 216,
+      "depth": 16
+    },
+    "taza_4": {
+      "sprite": "taza_blanca",
+      "x": 124,
+      "y": 215,
+      "depth": 15
+    },
+    "taza_5": {
+      "sprite": "taza_hueso",
+      "x": 306,
+      "y": 216,
+      "depth": 16
+    },
+    "taza_6": {
+      "sprite": "taza_roja",
+      "x": 114,
+      "y": 216,
+      "depth": 16
+    },
+    "taza_7": {
+      "sprite": "taza_blanca",
+      "x": 157,
+      "y": 215,
+      "depth": 16
+    },
+    "taza_8": {
+      "sprite": "taza_hueso",
+      "x": 334,
+      "y": 215,
+      "depth": 15
+    },
+    "taza_9": {
+      "sprite": "taza_roja",
+      "x": 343,
+      "y": 216,
+      "depth": 16
+    },
+    "papeles_1": {
+      "sprite": "papeles",
+      "x": 134,
+      "y": 217,
+      "depth": 14
+    },
+    "papeles_2": {
+      "sprite": "papeles_hueso",
+      "x": 135,
+      "y": 211,
+      "depth": 14
+    },
+    "papeles_3": {
+      "sprite": "papeles",
+      "x": 133,
+      "y": 205,
+      "depth": 14
+    },
+    "papeles_4": {
+      "sprite": "papeles_hueso",
+      "x": 302,
+      "y": 217,
+      "depth": 14
+    },
+    "papeles_5": {
+      "sprite": "papeles",
+      "x": 303,
+      "y": 211,
+      "depth": 14
+    },
+    "papeles_6": {
+      "sprite": "papel_chico",
+      "x": 196,
+      "y": 219,
+      "depth": 14
+    },
+    "papeles_7": {
+      "sprite": "papeles_hueso",
+      "x": 301,
+      "y": 205,
+      "depth": 14
+    },
+    "postit_1": {
+      "sprite": "postit_amarillo",
+      "x": 185,
+      "y": 178,
+      "depth": 14
+    },
+    "postit_2": {
+      "sprite": "postit_amarillo",
+      "x": 238,
+      "y": 178,
+      "depth": 14
+    },
+    "postit_3": {
+      "sprite": "postit_naranja",
+      "x": 185,
+      "y": 185,
+      "depth": 14
+    },
+    "postit_4": {
+      "sprite": "postit_rosa",
+      "x": 310,
+      "y": 174,
+      "depth": 14
+    },
+    "postit_5": {
+      "sprite": "postit_amarillo",
+      "x": 172,
+      "y": 170,
+      "depth": 14
+    },
+    "postit_6": {
+      "sprite": "postit_naranja",
+      "x": 178,
+      "y": 176,
+      "depth": 14
+    },
+    "postit_7": {
+      "sprite": "postit_rosa",
+      "x": 168,
+      "y": 182,
+      "depth": 14
+    },
+    "postit_8": {
+      "sprite": "postit_amarillo",
+      "x": 310,
+      "y": 181,
+      "depth": 14
+    },
+    "envoltorio": {
+      "sprite": "envoltorio",
+      "x": 186,
+      "y": 219,
+      "depth": 16
+    },
+    "ropa_saco": {
+      "sprite": "ropa_saco",
+      "x": 252,
+      "y": 204,
+      "depth": 23
+    },
+    "ropa_bufanda": {
+      "sprite": "ropa_bufanda",
+      "x": 282,
+      "y": 208,
+      "depth": 24
+    },
+    "ropa_sweater": {
+      "sprite": "ropa_sweater",
+      "x": 255,
+      "y": 230,
+      "depth": 23
+    }
+  },
+  "pools": {
+    "tazas": [
+      "taza_2",
+      "taza_3",
+      "taza_4",
+      "taza_5",
+      "taza_6",
+      "taza_7",
+      "taza_8",
+      "taza_9"
+    ]
+  },
+  "special": {
+    "_nota": "lluvia: se ve en actos con rain:true. brillo: luz de pantallas, alpha = glow del acto (por encima de la luz ambiente).",
+    "lluvia": {
+      "sprite": "lluvia",
+      "x": 343,
+      "y": 149,
+      "w": 54,
+      "h": 62,
+      "depth": 2,
+      "alpha": 0.55,
+      "tile": true,
+      "speed": 120
+    },
+    "brillo": {
+      "sprite": "brillo",
+      "x": 165,
+      "y": 150,
+      "depth": 901,
+      "blend": "ADD"
+    },
+    "sombra": {
+      "sprite": "sombra",
+      "x": 40,
+      "y": 150,
+      "depth": 4,
+      "alpha": 0.3,
+      "toX": 360,
+      "duration": 3600
+    },
+    "brazo": {
+      "sprite": "brazo",
+      "x": 290,
+      "y": 201,
+      "depth": 24,
+      "enterOffset": 50
+    },
+    "mano": {
+      "sprite": "mano",
+      "x": 284,
+      "y": 199,
+      "depth": 25
+    }
+  },
+  "finaleMoves": {
+    "_nota": "Durante el primer plano del final (fuera de cuadro), estos sprites se mueven acá: Federico acerca la silla.",
+    "federico_cuerpo": {
+      "x": 332,
+      "y": 198
+    },
+    "federico_cabeza": {
+      "x": 343,
+      "y": 181
+    },
+    "federico_silla": {
+      "x": 334,
+      "y": 206
+    }
+  }
+}

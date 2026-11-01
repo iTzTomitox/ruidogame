@@ -1,0 +1,214 @@
+{
+  "_nota": "deskAdd: ids de scene.deskObjects o 'pool:<nombre>'. event: 'sombra'. responses (opcional): pisa la respuesta de una acción solo en ese turno, ej. { \"cafe\": \"...\" }. Por acto: window (tinte de la ventana), ambient (capa de luz), glow (brillo de pantallas 0-1), rain (lluvia en la ventana).",
+  "start": {
+    "title": "RUIDO",
+    "subtitle": "click para empezar",
+    "hint": "con auriculares"
+  },
+  "acts": [
+    {
+      "id": "dia",
+      "name": "Día",
+      "card": "I",
+      "cardSub": "día",
+      "ruidoBase": 3,
+      "window": "cielo_dia",
+      "ambient": {
+        "color": "negro",
+        "alpha": 0
+      },
+      "glow": 0,
+      "rain": false,
+      "turns": [
+        {
+          "time": "09:04",
+          "pendientesAdd": 0,
+          "deskAdd": [],
+          "text": "Llegás primero. La oficina todavía huele a lavandina. Tenés doce mails sin leer."
+        },
+        {
+          "time": "10:17",
+          "pendientesAdd": 3,
+          "deskAdd": [
+            "papeles_1"
+          ],
+          "text": "Alguien se ríe lejos, en otra isla de escritorios. No sabés de qué."
+        },
+        {
+          "time": "11:30",
+          "pendientesAdd": 2,
+          "deskAdd": [
+            "postit_1",
+            "pool:tazas"
+          ],
+          "text": "Te llega el recordatorio de una reunión que ya pasó."
+        },
+        {
+          "time": "12:48",
+          "pendientesAdd": 2,
+          "deskAdd": [
+            "papeles_2"
+          ],
+          "text": "La gente sale a almorzar en grupo. Decís que vas después."
+        },
+        {
+          "time": "13:55",
+          "pendientesAdd": 3,
+          "deskAdd": [
+            "postit_2",
+            "ropa_saco"
+          ],
+          "text": "El reloj de la pared hace un ruido que antes no escuchabas."
+        }
+      ]
+    },
+    {
+      "id": "tarde",
+      "name": "Tarde",
+      "card": "II",
+      "cardSub": "tarde",
+      "ruidoBase": 5,
+      "window": "cielo_tarde",
+      "ambient": {
+        "color": "naranja",
+        "alpha": 0.12
+      },
+      "glow": 0.3,
+      "rain": false,
+      "turns": [
+        {
+          "time": "15:02",
+          "pendientesAdd": 3,
+          "deskAdd": [
+            "papeles_3",
+            "postit_3"
+          ],
+          "text": "El sol entra torcido y te pega justo en la pantalla."
+        },
+        {
+          "time": "16:10",
+          "pendientesAdd": 4,
+          "deskAdd": [
+            "pool:tazas",
+            "ropa_bufanda"
+          ],
+          "text": "Tu jefe escribe \"cuando puedas\". Lo leés cinco veces."
+        },
+        {
+          "time": "17:21",
+          "pendientesAdd": 2,
+          "deskAdd": [
+            "papeles_4"
+          ],
+          "event": "sombra",
+          "eventDelay": 900,
+          "text": "Escribís un mail tres veces y lo borrás las tres."
+        },
+        {
+          "time": "18:05",
+          "pendientesAdd": 3,
+          "deskAdd": [
+            "postit_4",
+            "envoltorio"
+          ],
+          "text": "Se van despidiendo. \"Nos vemos, Juli.\" Levantás la mano sin girarte."
+        },
+        {
+          "time": "19:12",
+          "pendientesAdd": 3,
+          "deskAdd": [
+            "papeles_5",
+            "postit_5"
+          ],
+          "text": "Quedan pocos. Las luces del fondo se apagan solas, por sensor."
+        }
+      ]
+    },
+    {
+      "id": "noche",
+      "name": "Noche",
+      "card": "III",
+      "cardSub": "noche",
+      "ruidoBase": 7,
+      "window": "cielo_noche",
+      "ambient": {
+        "color": "noche",
+        "alpha": 0.35
+      },
+      "glow": 0.6,
+      "rain": true,
+      "turns": [
+        {
+          "time": "20:40",
+          "pendientesAdd": 4,
+          "deskAdd": [
+            "ropa_sweater",
+            "pool:tazas"
+          ],
+          "text": "El edificio cruje como un barco. La canilla del baño gotea; desde acá se escucha."
+        },
+        {
+          "time": "21:55",
+          "pendientesAdd": 4,
+          "deskAdd": [
+            "papeles_6"
+          ],
+          "text": "La pantalla es lo único que ilumina. Tus manos se ven azules."
+        },
+        {
+          "time": "23:08",
+          "pendientesAdd": 5,
+          "deskAdd": [
+            "postit_6",
+            "postit_7",
+            "pool:tazas"
+          ],
+          "text": "Contás los mails. Después contás tus respiraciones. Perdés la cuenta de las dos."
+        },
+        {
+          "time": "00:31",
+          "pendientesAdd": 5,
+          "deskAdd": [
+            "papeles_7",
+            "postit_8"
+          ],
+          "text": "No te acordás si cenaste."
+        },
+        {
+          "time": "01:47",
+          "pendientesAdd": 6,
+          "deskAdd": [
+            "pool:tazas"
+          ],
+          "text": "Todo suena al mismo tiempo."
+        }
+      ]
+    }
+  ],
+  "finale": {
+    "lockedText": "",
+    "placa": "A veces alcanza con estar.",
+    "restart": "click para volver a empezar",
+    "timing": {
+      "beforeHand": 2200,
+      "handIn": 1100,
+      "silenceFade": 80,
+      "fxRelease": 2500,
+      "holdSilence": 2200,
+      "uiFade": 1200,
+      "holdReveal": 3000,
+      "blackBeforePlaca": 1400,
+      "placaFade": 1800,
+      "placaHold": 3500
+    }
+  },
+  "menu": {
+    "start": "Empezar",
+    "sound": "Sonido",
+    "resolution": "Resolución",
+    "min": "mín",
+    "max": "máx",
+    "hint": "con auriculares",
+    "controls": "flechas: elegir y cambiar · enter: aceptar"
+  }
+}

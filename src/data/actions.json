@@ -1,0 +1,136 @@
+{
+  "_nota": "visual: type | sip | blink | flash | twitch. responses: por id de acto (o 'default'), se recorren en orden. spawnPool: suma un objeto del pool al escritorio.",
+  "list": [
+    {
+      "id": "trabajar",
+      "label": "Trabajar",
+      "visual": "type",
+      "effects": { "energia": -12, "sueno": 6, "pendientes": -4, "ruido": 2 },
+      "responses": {
+        "dia": [
+          "Contestás dos mails. Llegan tres.",
+          "Ordenás una planilla. Se siente casi bien.",
+          "Escribís rápido, sin pensar demasiado."
+        ],
+        "tarde": [
+          "Releés lo que escribiste. No entendés qué quisiste decir.",
+          "Avanzás un poco. El número de pendientes no se entera.",
+          "Tus dedos siguen. Vos te quedaste un poco atrás."
+        ],
+        "noche": [
+          "Las letras se despegan de la pantalla.",
+          "Trabajás. O algo parecido.",
+          "Mandás un mail. Lo releés ya enviado: error en la primera línea."
+        ]
+      }
+    },
+    {
+      "id": "cafe",
+      "label": "Tomar café",
+      "visual": "sip",
+      "spawnPool": "tazas",
+      "effects": { "energia": 14, "sueno": -10, "ruido": 4 },
+      "responses": {
+        "dia": [
+          "El café de la máquina sabe a cartón tibio. Igual ayuda.",
+          "Te servís uno más. La taza queda ahí.",
+          "Calor en las manos. Por un rato."
+        ],
+        "tarde": [
+          "El corazón se acelera un poco. Lo tomás como energía.",
+          "Otra taza. Ya no lavás las anteriores.",
+          "Se enfría antes de que lo termines."
+        ],
+        "noche": [
+          "El café ya no hace nada. Lo tomás igual.",
+          "Te tiemblan un poco las manos.",
+          "La máquina hace un ruido horrible a esta hora."
+        ]
+      }
+    },
+    {
+      "id": "ojos",
+      "label": "Cerrar los ojos",
+      "visual": "blink",
+      "effects": { "energia": 6, "sueno": 8, "ruido": 3 },
+      "responses": {
+        "dia": [
+          "Cerrás los ojos. Escuchás el teclado de alguien más.",
+          "Tres segundos. Cuatro. Alguien pasa y los abrís.",
+          "Detrás de los párpados, la planilla sigue."
+        ],
+        "tarde": [
+          "Con los ojos cerrados todo suena más fuerte.",
+          "Contás hasta diez. Llegás a seis.",
+          "Por un momento casi te dormís. Casi."
+        ],
+        "noche": [
+          "Cerrás los ojos y el ruido se acerca.",
+          "No hay oscuridad suficiente.",
+          "Abrís los ojos de golpe. No sabés cuánto pasó."
+        ]
+      }
+    },
+    {
+      "id": "cara",
+      "label": "Mojarse la cara",
+      "visual": "flash",
+      "effects": { "energia": 5, "sueno": -12, "ruido": 2 },
+      "responses": {
+        "dia": [
+          "Agua fría. El espejo del baño te devuelve una cara conocida.",
+          "Te mojás la nuca también, por las dudas.",
+          "Vuelve un poco el color."
+        ],
+        "tarde": [
+          "El agua no está tan fría como necesitabas.",
+          "En el espejo tenés ojeras que a la mañana no eran tuyas.",
+          "Te secás con papel. Se te queda pegado en la barba."
+        ],
+        "noche": [
+          "La canilla sigue goteando cuando la cerrás.",
+          "No te mirás en el espejo.",
+          "El agua ayuda tres minutos."
+        ]
+      }
+    },
+    {
+      "id": "manga",
+      "label": "Acomodarse la manga",
+      "visual": "twitch",
+      "effects": { "ruido": 1 },
+      "responses": {
+        "dia": [
+          "Te acomodás la manga. Estaba bien.",
+          "Doblás el puño de la camisa. Prolijo.",
+          "Manga. Puño. Botón. Listo."
+        ],
+        "tarde": [
+          "La manga otra vez. Tiene que quedar pareja.",
+          "La acomodás. La volvés a acomodar.",
+          "Mientras la manga esté bien, algo está bien."
+        ],
+        "noche": [
+          "La manga no queda. No queda. No queda.",
+          "Tirás del puño hasta que la tela cruje.",
+          "Las dos mangas, ahora. Igual de mal."
+        ]
+      }
+    },
+    {
+      "id": "ayuda",
+      "label": "Pedir ayuda",
+      "disabled": true,
+      "refusals": [
+        "No quiero molestar.",
+        "Ya se me va a pasar.",
+        "Todos tienen sus cosas.",
+        "Es una pavada, en serio.",
+        "Mañana, quizás.",
+        "¿Y qué les digo?",
+        "No es para tanto.",
+        "Puedo solo."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+{
+  "meta": {
+    "title": "RUIDO",
+    "width": 320,
+    "height": 180
+  },
+  "palette": {
+    "negro": "#0d0e14",
+    "noche": "#151823",
+    "sombra": "#1d2130",
+    "pizarra_osc": "#262b3b",
+    "pizarra": "#323849",
+    "pizarra_cla": "#414a5e",
+    "gris_azul": "#5a6479",
+    "gris_cla": "#8590a3",
+    "hueso": "#c9c4b8",
+    "blanco": "#eceae2",
+    "madera_osc": "#2e2220",
+    "madera": "#4a332b",
+    "madera_cla": "#6b4a3a",
+    "cuero": "#5a3a2c",
+    "cuero_cla": "#7a5040",
+    "piel": "#b98a70",
+    "piel_osc": "#8a604e",
+    "pantalla_osc": "#1d3a6b",
+    "pantalla": "#3b6fc0",
+    "pantalla_cla": "#7fb0f0",
+    "cyan": "#5fd4e8",
+    "verde_osc": "#1f5a32",
+    "verde": "#3fa34f",
+    "verde_cla": "#8fe07a",
+    "naranja": "#d98a4a",
+    "amarillo": "#e8c45a",
+    "rojo": "#a8423a",
+    "rosa": "#c76a8a",
+    "violeta": "#7a5aa8",
+    "cielo_dia": "#9cc0d8",
+    "cielo_tarde": "#e09060",
+    "cielo_noche": "#232c48",
+    "ciudad_cielo": "#fbb99b",
+    "ciudad_1": "#ec9aa2",
+    "ciudad_2": "#d6738f",
+    "ciudad_3": "#a8557a",
+    "ciudad_4": "#6e4467",
+    "ciudad_5": "#3a3654",
+    "ciudad_6": "#1a2c38",
+    "ciudad_7": "#0f222c",
+    "ciudad_8": "#071219",
+    "luz_roja": "#f2545b",
+    "ventana_rosa": "#f6c7ad",
+    "ventana_verde": "#6f9a6a",
+    "ventana_amarilla": "#cfd08a"
+  },
+  "font": {
+    "_nota": "Fuente bitmap propia (src/systems/pixelFont.js). Las escalas deben ser enteras.",
+    "titleScale": 3,
+    "placaScale": 1
+  },
+  "ui": {
+    "panel": "noche",
+    "panelLine": "pizarra",
+    "hudBg": "negro",
+    "text": "hueso",
+    "textDim": "gris_azul",
+    "cardText": "blanco",
+    "btn": "sombra",
+    "btnHover": "pizarra",
+    "btnText": "hueso",
+    "btnTextDisabled": "gris_azul",
+    "barBg": "pizarra_osc"
+  },
+  "stats": {
+    "energia": {
+      "label": "Energía",
+      "start": 70,
+      "max": 100,
+      "color": "amarillo"
+    },
+    "sueno": {
+      "label": "Sueño",
+      "start": 25,
+      "max": 100,
+      "color": "pantalla_cla"
+    },
+    "pendientes": {
+      "label": "Pendientes",
+      "start": 12
+    },
+    "ruido": {
+      "label": "Ruido",
+      "start": 0,
+      "max": 100,
+      "hidden": true
+    }
+  },
+  "ruido": {
+    "_nota": "Cada turno: ruido += ruidoBase del acto + max(minPerAction, effects.ruido de la acción). Nunca baja.",
+    "minPerAction": 1,
+    "capBeforeLastTurn": 96,
+    "forceMaxOnLastTurn": true
+  },
+  "effects": {
+    "_nota": "saturation: 0 = normal, negativo = desatura (-1 gris), positivo = sobresatura. vignette x/y relativos a la pantalla (y medido desde abajo: 0.68 = centro del área visible sobre el panel).",
+    "saturation": {
+      "from": 0,
+      "to": -0.85
+    },
+    "vignette": {
+      "x": 0.5,
+      "y": 0.68,
+      "radiusFrom": 0.9,
+      "radiusTo": 0.38,
+      "strengthFrom": 0.1,
+      "strengthTo": 0.5
+    },
+    "shake": {
+      "startAt": 45,
+      "maxPx": 2,
+      "interval": 70
+    }
+  },
+  "camera": {
+    "closeUp": {
+      "x": 220,
+      "y": 230,
+      "zoom": 1
+    },
+    "closeIn": {
+      "_nota": "Al trabarse los controles la cámara se cierra sobre Julián (zoom entero = pixel perfect).",
+      "x": 248,
+      "y": 205,
+      "zoom": 2,
+      "duration": 1800
+    },
+    "reveal": {
+      "x": 320,
+      "y": 180,
+      "zoom": 0.5,
+      "duration": 4500
+    }
+  },
+  "timing": {
+    "typeSpeed": 28,
+    "fadeOut": 450,
+    "fadeIn": 550,
+    "actCard": 1600,
+    "timeCard": 900,
+    "ruidoTween": 1400
+  },
+  "audio": {
+    "_nota": "Cada capa usa un sintetizador procedural salvo que pongas 'file' (ruta dentro de /public, ej. 'audio/teclado.ogg'). Volumen = min..max según ruido entre from..to.",
+    "masterVolume": 0.8,
+    "eyesClosedBoost": 1.8,
+    "layers": [
+      {
+        "id": "teclado",
+        "synth": "keyboard",
+        "file": null,
+        "min": 0.05,
+        "max": 0.5,
+        "from": 0,
+        "to": 70
+      },
+      {
+        "id": "reloj",
+        "synth": "clock",
+        "file": null,
+        "min": 0,
+        "max": 0.45,
+        "from": 10,
+        "to": 80
+      },
+      {
+        "id": "gota",
+        "synth": "drip",
+        "file": null,
+        "min": 0,
+        "max": 0.5,
+        "from": 30,
+        "to": 90
+      },
+      {
+        "id": "respiracion",
+        "synth": "breath",
+        "file": null,
+        "min": 0,
+        "max": 0.6,
+        "from": 45,
+        "to": 100
+      },
+      {
+        "id": "tubo",
+        "synth": "hum",
+        "file": null,
+        "min": 0.02,
+        "max": 0.15,
+        "from": 0,
+        "to": 100
+      }
+    ]
+  }
+}
