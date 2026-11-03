@@ -340,5 +340,25 @@
         "name": "Beron Tomas"
       }
     ]
+  },
+  "achievements": {
+    "_nota": "Logros del menú (botón del trofeo). Cada final se marca al llegar a él y queda guardado en el navegador. Los bloqueados se muestran como 'locked'.",
+    "title": "Logros",
+    "counter": "Finales desbloqueados",
+    "locked": "???",
+    "endings": [
+      {
+        "id": "federico",
+        "name": "El sueño de otro"
+      },
+      {
+        "id": "ayuda",
+        "name": "Pedir ayuda"
+      },
+      {
+        "id": "dormido",
+        "name": "Te quedaste dormido"
+      }
+    ]
   }
 }

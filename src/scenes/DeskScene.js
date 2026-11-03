@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { config, scene as layout, actions, narrative } from '../data/index.js';
 import AudioEngine from '../systems/AudioEngine.js';
+import { unlockEnding } from '../systems/achievements.js';
 import { CURSOR } from '../systems/cursor.js';
 import { col, hex } from '../systems/palette.js';
 import { normalize, wrap } from '../systems/pixelFont.js';
@@ -873,6 +874,7 @@ export default class DeskScene extends Phaser.Scene {
   // ---------- derrota: sin energía ----------
 
   async fallAsleep() {
+    unlockEnding('dormido');
     const s = narrative.asleep;
     const T = s.timing;
     this.state = 'asleep';
@@ -906,6 +908,7 @@ export default class DeskScene extends Phaser.Scene {
   // ---------- final alternativo: pedir ayuda ----------
 
   async askForHelp() {
+    unlockEnding('ayuda');
     const P = narrative.help;
     const T = P.timing;
     this.state = 'finale';
@@ -967,6 +970,7 @@ export default class DeskScene extends Phaser.Scene {
   // ---------- final ----------
 
   async finale() {
+    unlockEnding('federico');
     const f = narrative.finale;
     const T = f.timing;
     this.state = 'finale';

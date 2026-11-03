@@ -211,6 +211,30 @@ export const PAINTERS = {
     stamp(p, 0, 0, rows, 'ciudad_4');
   },
 
+  // Trofeo dorado del botón de logros (13x12): copa con asas, pie y base.
+  trophy(p) {
+    const g = 'amarillo', lt = '#f6e08a', dk = 'naranja';
+    p.rect(3, 0, 7, 5, g); // copa
+    p.rect(4, 5, 5, 1, g);
+    p.rect(5, 6, 3, 1, g);
+    p.vline(3, 0, 5, lt);
+    p.vline(4, 1, 3, lt);
+    p.vline(9, 0, 5, dk);
+    p.hline(3, 0, 7, lt);
+    // asas
+    [[0, 1], [11, 1]].forEach(([x]) => {
+      p.vline(x, 1, 3, g);
+      p.px(x === 0 ? 1 : 11, 4, g);
+      p.px(x === 0 ? 1 : 11, 1, g);
+      p.px(x === 0 ? 2 : 10, 1, g);
+      p.px(x === 0 ? 2 : 10, 4, g);
+    });
+    p.rect(6, 7, 1, 2, dk); // pie
+    p.rect(4, 9, 5, 1, g);
+    p.rect(3, 10, 7, 2, dk);
+    p.hline(3, 10, 7, g);
+  },
+
   // Logo de YouTube para el botón del cortometraje (13x9): píldora roja con brillo arriba a la izquierda.
   youtube(p) {
     const body = ['..#########..', '.###########.', '#############', '#############', '#############', '#############', '#############', '.###########.', '..#########..'];

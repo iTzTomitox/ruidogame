@@ -537,6 +537,12 @@
       "paint": "train",
       "file": null
     },
+    "icono_trofeo": {
+      "w": 13,
+      "h": 12,
+      "paint": "trophy",
+      "file": null
+    },
     "icono_youtube": {
       "w": 13,
       "h": 9,

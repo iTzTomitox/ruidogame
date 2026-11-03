@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { config, narrative } from '../data/index.js';
+import { endings, isUnlocked, unlockedCount } from '../systems/achievements.js';
 import { CURSOR } from '../systems/cursor.js';
 import { col } from '../systems/palette.js';
 import { normalize } from '../systems/pixelFont.js';
@@ -11,6 +12,7 @@ const PAGES = {
   main: ['start', 'config', 'credits'],
   config: ['sound', 'resolution', 'back'],
   credits: ['back'],
+  achievements: ['back'],
 };
 
 // Capas del fondo animado, de atrás hacia adelante.
@@ -57,6 +59,16 @@ export default class MenuScene extends Phaser.Scene {
       });
       return { text, zone };
     });
+
+    // Botón del trofeo (arriba a la izquierda): abre los logros.
+    const tb = { x: 6, y: 6, s: 22 };
+    const border = this.add.rectangle(tb.x, tb.y, tb.s, tb.s, col('ciudad_3')).setOrigin(0);
+    this.add.rectangle(tb.x + 1, tb.y + 1, tb.s - 2, tb.s - 2, col('ciudad_8'), 0.9).setOrigin(0);
+    this.add.image(tb.x + 5, tb.y + 5, 'icono_trofeo').setOrigin(0);
+    this.add.zone(tb.x, tb.y, tb.s, tb.s).setOrigin(0).setInteractive({ cursor: CURSOR.hover })
+      .on('pointerover', () => border.setFillStyle(col('blanco')))
+      .on('pointerout', () => border.setFillStyle(col('ciudad_3')))
+      .on('pointerdown', () => this.go('achievements'));
 
     const M = narrative.menu;
     this.add.rectangle(0, 157, W, H - 157, col('ciudad_8'), 0.75).setOrigin(0);
@@ -226,6 +238,23 @@ export default class MenuScene extends Phaser.Scene {
       const split = Math.round((W - (roleW + 8 + nameW)) / 2) + roleW;
       rows.forEach(([r, n]) => (r.setOrigin(1, 0).setX(split), n.setX(split + 8)));
       pw = Math.max(pw, roleW + 8 + nameW + 20, (intro?.width ?? 0) + 20);
+      itemsTop = y + 3;
+    }
+    if (page === 'achievements') {
+      // "Finales desbloqueados  1 / 3" y la lista: los vistos con su nombre, los otros como "???"
+      const A = narrative.achievements;
+      top = 64;
+      let y = top + 5;
+      const add = (str, color) => {
+        const t = this.add.bitmapText(W / 2, y, 'pixel', normalize(str)).setOrigin(0.5, 0).setTint(col(color)).setDepth(D.ui);
+        this.creditTexts.push(t);
+        y += 10;
+        return t;
+      };
+      const head = add(`${A.counter}  ${unlockedCount()} / ${endings().length}`, 'amarillo');
+      y += 3;
+      const rows = endings().map((e) => (isUnlocked(e.id) ? add(e.name, 'blanco') : add(A.locked, 'gris_cla')));
+      pw = Math.max(pw, head.width + 24, ...rows.map((r) => r.width + 24));
       itemsTop = y + 3;
     }
     const n = this.ids().length;
