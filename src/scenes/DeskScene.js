@@ -87,6 +87,141 @@ export default class DeskScene extends Phaser.Scene {
       .setOrigin(0)
       .setDepth(900);
     this.uiCam.ignore(this.ambient);
+    this.buildScreens();
+    this.buildClock();
+    this.buildPhoto();
+  }
+
+  // La foto del estante: con click se ven los dos retratos en grande (otro click los cierra).
+  buildPhoto() {
+    const frame = this.byId.cuadro_foto;
+    if (!frame) return;
+    const ring = this.add.rectangle(frame.x - 1, frame.y - 1, frame.width + 2, frame.height + 2)
+      .setOrigin(0).setStrokeStyle(1, col('hueso')).setDepth(frame.depth).setVisible(false);
+    this.uiCam.ignore(ring);
+    frame.setInteractive({ useHandCursor: true });
+    frame.on('pointerover', () => ring.setVisible(true));
+    frame.on('pointerout', () => ring.setVisible(false));
+    frame.on('pointerdown', (p, lx, ly, ev) => {
+      ev.stopPropagation();
+      if (!['finale', 'asleep', 'end'].includes(this.state)) this.openPhotos();
+    });
+  }
+
+  openPhotos() {
+    if (this.viewer) return;
+    const S = 2, gap = 16;
+    const imgs = ['retrato_a', 'retrato_b'].map((k) => this.add.image(0, 0, k).setOrigin(0).setScale(S));
+    const pw = imgs[0].width * S, ph = imgs[0].height * S;
+    const left = (W - (pw * 2 + gap)) / 2, top = Math.round((H - ph) / 2) - 6;
+    const parts = [this.add.rectangle(0, 0, W, H, col('negro'), 0.88).setOrigin(0)];
+    imgs.forEach((img, i) => {
+      const x = left + i * (pw + gap);
+      parts.push(
+        this.add.rectangle(x - 4, top - 4, pw + 8, ph + 8, col('negro')).setOrigin(0),
+        this.add.rectangle(x - 3, top - 3, pw + 6, ph + 6, col('madera_osc')).setOrigin(0),
+        img.setPosition(x, top),
+      );
+    });
+    parts.push(this.txt(W / 2, top + ph + 9, narrative.photo?.close ?? '', config.ui.textDim).setOrigin(0.5, 0));
+    this.viewer = parts.map((o) => this.ui(o, 6000 + parts.indexOf(o)).setAlpha(0));
+    this.tweens.add({ targets: this.viewer, alpha: 1, duration: 200 });
+  }
+
+  closePhotos() {
+    const v = this.viewer;
+    this.viewer = null;
+    this.tweens.add({ targets: v, alpha: 0, duration: 150, onComplete: () => v.forEach((o) => o.destroy()) });
+  }
+
+  // Pantallas vivas: en las de código se sigue tipeando abajo (con cursor), en la de pistas avanza el cabezal.
+  // Quedan quietas durante la llegada; arrancan con la placa del primer acto (startScreens).
+  buildScreens() {
+    const world = (o) => (this.uiCam.ignore(o), o.setDepth(14));
+    this.screenStarters = [];
+    for (const def of layout.static) {
+      const tex = layout.sprites[def.sprite];
+      if (tex?.paint !== 'screen' || tex.file) continue;
+      const { w, h } = tex;
+      if (tex.args?.[0] === 'tracks') {
+        const head = world(this.add.rectangle(def.x + 10, def.y + 3, 1, h - 3, col('blanco')).setOrigin(0));
+        this.screenStarters.push(() => this.tweens.add({ targets: head, x: def.x + w - 2, duration: 9000, repeat: -1 }));
+      } else {
+        this.screenStarters.push(this.typingScreen(world(this.add.graphics()), def.x + 13, def.y + h - 9, w - 15));
+      }
+    }
+  }
+
+  startScreens() {
+    if (this.screensOn) return;
+    this.screensOn = true;
+    this.screenStarters.forEach((start) => start());
+  }
+
+  // Tres renglones al pie de una pantalla de código que se van escribiendo de a poco, con pausas.
+  typingScreen(g, x, y, w) {
+    const colors = ['pantalla_cla', 'cyan', 'amarillo', 'rosa', 'blanco', 'verde_cla'].map(col);
+    let segs = [], row = 0, cx = 1 + Phaser.Math.Between(0, 2) * 2, cursorOn = true;
+    const newSeg = () => segs.push({ row, x: cx, len: 0, c: Phaser.Utils.Array.GetRandom(colors) });
+    const draw = () => {
+      g.clear().fillStyle(col('pantalla_osc')).fillRect(x, y, w, 8);
+      segs.forEach((s) => g.fillStyle(s.c).fillRect(x + s.x, y + 1 + s.row * 2, s.len, 1));
+      if (cursorOn) g.fillStyle(col('blanco')).fillRect(x + cx, y + 1 + row * 2, 1, 1);
+    };
+    const type = () => {
+      let delay = Phaser.Math.Between(90, 260);
+      const seg = segs.at(-1);
+      if (!seg || seg.row !== row) newSeg();
+      else if (Math.random() < 0.18 && seg.len > 1) {
+        cx += 2; // espacio: arranca otra palabra
+        newSeg();
+      }
+      segs.at(-1).len++;
+      cx++;
+      if (cx > w - 3 || (Math.random() < 0.06 && cx > 8)) {
+        row++; // enter
+        cx = 1 + Phaser.Math.Between(0, 3) * 2;
+        delay += Phaser.Math.Between(300, 900);
+        if (row > 2) {
+          row = 0;
+          segs = [];
+          delay += 800;
+        }
+      }
+      if (Math.random() < 0.05) delay += Phaser.Math.Between(1200, 2600); // se queda pensando
+      draw();
+      this.time.delayedCall(delay, type);
+    };
+    return () => {
+      this.time.addEvent({ delay: 500, loop: true, callback: () => ((cursorOn = !cursorOn), draw()) });
+      draw();
+      this.time.delayedCall(Phaser.Math.Between(300, 1200), type);
+    };
+  }
+
+  // Reloj de pared: las agujas se dibujan pixel por pixel según la hora del turno ("09:04").
+  buildClock() {
+    const def = layout.static.find((s) => s.sprite === 'reloj');
+    if (!def || layout.sprites.reloj.file) return;
+    const r = (layout.sprites.reloj.w - 1) / 2;
+    this.clock = { cx: def.x + r, cy: def.y + r, g: this.add.graphics().setDepth((def.depth ?? 0) + 1) };
+    this.uiCam.ignore(this.clock.g);
+  }
+
+  setClock(time) {
+    if (!this.clock || !time) return;
+    const [hh, mm] = time.split(':').map(Number);
+    const { cx, cy, g } = this.clock;
+    const hand = (turns, len) => {
+      const a = turns * Math.PI * 2;
+      for (let i = 0; i <= len * 2; i++) {
+        const d = i / 2;
+        g.fillRect(Math.round(cx + Math.sin(a) * d), Math.round(cy - Math.cos(a) * d), 1, 1);
+      }
+    };
+    g.clear().fillStyle(col('negro'));
+    hand(((hh % 12) + mm / 60) / 12, 2.4);
+    hand(mm / 60, 3.6);
   }
 
   // Texto con la fuente bitmap pixel (ver systems/pixelFont.js).
@@ -112,20 +247,32 @@ export default class DeskScene extends Phaser.Scene {
     this.contMark = this.ui(this.txt(308, 128, '▼', U.textDim), 1002).setVisible(false);
     this.tweens.add({ targets: this.contMark, alpha: 0.2, yoyo: true, repeat: -1, duration: 400 });
 
-    // HUD dentro del panel, para no tapar la escena: stats visibles (Ruido no se muestra) + acto/hora.
+    // Barras de Energía y Sueño arriba, sobre la pared (config.ui.hud). Ruido no se muestra.
+    const hud = U.hud;
+    this.barW = hud.barW;
+    this.bars = {};
+    this.ghosts = {};
+    this.deltas = {};
+    const keys = ['energia', 'sueno'];
+    const labels = keys.map((k, i) => keep(this.ui(this.txt(hud.x, hud.y + i * hud.rowH, config.stats[k].label, U.text), 1001)));
+    const bx = hud.x + Math.max(...labels.map((l) => l.width)) + 4;
+    keys.forEach((k, i) => {
+      const y = hud.y + i * hud.rowH + 2;
+      keep(this.ui(this.add.rectangle(bx, y, this.barW, 4, col(U.barBg)).setOrigin(0), 1001));
+      this.bars[k] = keep(this.ui(this.add.rectangle(bx, y, this.barW, 4, col(config.stats[k].color)).setOrigin(0), 1002));
+      this.ghosts[k] = this.ui(this.add.rectangle(bx, y, 0, 4, col('blanco')).setOrigin(0), 1003).setVisible(false);
+      this.deltas[k] = this.ui(this.txt(bx + this.barW + 4, y - 2, '', U.text), 1001);
+    });
+    const bgW = bx + this.barW + 4 + hud.deltaW - hud.x + 6;
+    keep(this.ui(this.add.rectangle(hud.x - 3, hud.y - 2, bgW, keys.length * hud.rowH + 2, col(U.hudBg), hud.bgAlpha).setOrigin(0), 1000));
+    this.tweens.add({ targets: Object.values(this.ghosts), alpha: 0.25, yoyo: true, repeat: -1, duration: 350 });
+
+    // En el panel: pendientes + acto/hora.
     const hy = 140;
     keep(this.ui(this.add.rectangle(4, hy - 3, W - 8, 1, col(U.panelLine)).setOrigin(0), 1001));
-    this.barW = 30;
-    this.bars = {};
-    [['energia', 6], ['sueno', 78]].forEach(([k, x]) => {
-      const s = config.stats[k];
-      const label = keep(this.ui(this.txt(x, hy, s.label, U.textDim), 1001));
-      const bx = x + label.width + 3;
-      keep(this.ui(this.add.rectangle(bx, hy + 2, this.barW, 4, col(U.barBg)).setOrigin(0), 1001));
-      this.bars[k] = keep(this.ui(this.add.rectangle(bx, hy + 2, this.barW, 4, col(s.color)).setOrigin(0), 1002));
-    });
-    const pend = keep(this.ui(this.txt(146, hy, config.stats.pendientes.label, U.textDim), 1001));
-    this.pendText = keep(this.ui(this.txt(146 + pend.width + 4, hy, '', U.text), 1001));
+    const pend = keep(this.ui(this.txt(6, hy, config.stats.pendientes.label, U.textDim), 1001));
+    this.pendText = keep(this.ui(this.txt(6 + pend.width + 4, hy, '', U.text), 1001));
+    this.deltas.pendientes = this.ui(this.txt(0, hy, '', U.text), 1001);
     this.header = keep(this.ui(this.txt(W - 6, hy, '', U.text).setOrigin(1, 0), 1001));
 
     this.buildButtons();
@@ -150,8 +297,17 @@ export default class DeskScene extends Phaser.Scene {
       const bg = this.ui(this.add.rectangle(x, y, 102, 12, col(U.btn)).setOrigin(0), 1001);
       const label = this.ui(this.txt(x + 4, y + 2, text, a.disabled ? U.btnTextDisabled : U.btnText), 1002);
       bg.setInteractive({ useHandCursor: true });
-      bg.on('pointerover', () => this.state === 'choose' && bg.setFillStyle(col(U.btnHover)));
-      bg.on('pointerout', () => bg.setFillStyle(col(U.btn)));
+      bg.on('pointerover', () => {
+        this.hovered = i;
+        if (this.state !== 'choose') return;
+        bg.setFillStyle(col(U.btnHover));
+        this.previewEffects(a);
+      });
+      bg.on('pointerout', () => {
+        if (this.hovered === i) this.hovered = null;
+        bg.setFillStyle(col(U.btn));
+        this.clearPreview();
+      });
       bg.on('pointerdown', (p, lx, ly, ev) => {
         ev.stopPropagation();
         this.choose(i);
@@ -167,6 +323,45 @@ export default class DeskScene extends Phaser.Scene {
       b.label.setAlpha(on ? 1 : 0.45);
       if (!on) b.bg.setFillStyle(col(config.ui.btn));
     });
+    this.clearPreview();
+    // si el mouse ya estaba sobre un botón cuando vuelven a habilitarse, mostrar su vista previa
+    const h = on && this.buttons[this.hovered];
+    if (h) {
+      h.bg.setFillStyle(col(config.ui.btnHover));
+      this.previewEffects(h.a);
+    }
+  }
+
+  // Vista previa al pasar el mouse por una acción: cuánto cambia cada stat.
+  // Verde si te conviene, rojo si no (config.stats[k].better: "up" o "down").
+  previewEffects(a) {
+    const e = a.effects ?? {};
+    for (const k of ['energia', 'sueno', 'pendientes']) {
+      const d = e[k];
+      if (!d) continue;
+      const s = config.stats[k];
+      const good = (d > 0) === (s.better !== 'down');
+      const c = col(good ? config.ui.deltaGood : config.ui.deltaBad);
+      this.deltas[k].setText(d > 0 ? `+${d}` : `${d}`).setTint(c);
+      if (k === 'pendientes') {
+        this.deltas[k].setX(this.pendText.x + this.pendText.width + 4);
+        continue;
+      }
+      const cur = this.stats[k];
+      const next = Phaser.Math.Clamp(cur + d, 0, s.max);
+      const w = (v) => Math.round((this.barW * v) / s.max);
+      const g = this.ghosts[k];
+      g.setX(this.bars[k].x + w(Math.min(cur, next)))
+        .setSize(Math.max(1, Math.abs(w(next) - w(cur))), 4)
+        .setFillStyle(c)
+        .setVisible(next !== cur);
+    }
+  }
+
+  clearPreview() {
+    if (!this.ghosts) return;
+    Object.values(this.ghosts).forEach((g) => g.setVisible(false));
+    Object.values(this.deltas).forEach((t) => t.setText(''));
   }
 
   setupFX() {
@@ -234,6 +429,7 @@ export default class DeskScene extends Phaser.Scene {
   }
 
   onAdvance() {
+    if (this.viewer) return this.closePhotos();
     if (this.state === 'end') return this.scene.start('Menu');
     if (this.typingDone) return this.typingDone();
     if (this.continueResolve) {
@@ -311,7 +507,131 @@ export default class DeskScene extends Phaser.Scene {
     this.state = 'busy';
     this.audio.start();
     this.setRuido(this.stats.ruido, 1);
-    this.nextTurn();
+    // con ?turno=N se saltea la llegada
+    if (this.turnIndex === -1 && narrative.intro?.enabled) this.intro().then(() => this.nextTurn());
+    else this.nextTurn();
+  }
+
+  // ---------- llegada: Julián entra, saluda a Federico y se sienta ----------
+
+  async intro() {
+    const I = narrative.intro;
+    const T = I.timing;
+    const julian = [this.byId.julian_cuerpo, this.byId.julian_cabeza];
+    const ui = this.fadeable.concat(this.buttons.flatMap((b) => [b.bg, b.label]));
+    ui.forEach((o) => o.setAlpha(0));
+    julian.forEach((o) => o.setVisible(false));
+    this.applyAct(this.turns[0]); // la luz del primer acto ya durante la llegada
+    this.setClock(I.cardSub); // el reloj marca la hora de llegada
+
+    // Julián de pie: cuerpo + la misma cabeza de siempre, en un container que camina.
+    const body = this.add.image(0, 0, 'julian_pie_0').setOrigin(0);
+    const head = this.add.image(6, -17, 'julian_cabeza').setOrigin(0);
+    this.walker = this.add.container(I.startX, I.floorY - body.height, [body, head]).setDepth(30);
+    this.walker.body_ = body;
+    this.walker.head_ = head;
+    this.uiCam.ignore(this.walker);
+
+    const cu = config.camera.closeUp;
+    this.camCenter.x = cu.x;
+    await this.showCard(I.card, I.cardSub, T.card);
+    await this.tween({ targets: this.black, alpha: 0, duration: T.fadeIn });
+
+    await this.walkTo(I.greetX);
+    await this.wait(T.beforeGreet);
+    const fedHead = this.byId.federico_cabeza;
+    for (const line of I.lines) {
+      // Federico gira la cabeza hacia Julián mientras hablan
+      if (line.who === 'federico' && fedHead && !this.fedTurned) {
+        this.fedTurned = true;
+        this.tween({ targets: fedHead, x: '-=2', duration: 250 });
+      }
+      await this.say(line);
+    }
+    if (this.fedTurned) this.tween({ targets: fedHead, x: '+=2', duration: 300, delay: 400 });
+
+    await this.walkTo(I.seatX);
+    // se sienta: un paso hacia la silla y aparece sentado
+    await this.tween({ targets: this.walker, y: `-=${T.sitStep}`, duration: 250 });
+    this.walker.destroy();
+    this.walker = null;
+    julian.forEach((o) => o.setVisible(true).setY(o.y - 3));
+    this.tween({ targets: julian, y: '+=3', duration: 180, ease: 'Quad.easeIn' });
+    if (this.byId.julian_silla) this.tween({ targets: this.byId.julian_silla, y: '+=1', yoyo: true, duration: 120, delay: 150 });
+    await this.tween({ targets: this.camCenter, x: cu.x, y: cu.y, duration: 600, ease: 'Sine.easeInOut' });
+    await this.wait(T.afterSit);
+
+    await this.tween({ targets: this.black, alpha: 1, duration: config.timing.fadeOut });
+    ui.forEach((o) => o.setAlpha(1));
+    this.setButtonsEnabled(false);
+  }
+
+  walkTo(tx) {
+    const w = this.walker;
+    const I = narrative.intro;
+    const dist = Math.abs(tx - w.x);
+    if (!dist) return Promise.resolve();
+    w.body_.setFlipX(tx < w.x);
+    let step = 0;
+    const anim = this.time.addEvent({
+      delay: I.timing.stepMs,
+      loop: true,
+      callback: () => {
+        step = (step % 2) + 1;
+        w.body_.setTexture(`julian_pie_${step}`);
+        w.head_.setY(-17 + (step === 1 ? 1 : 0));
+      },
+    });
+    const half = config.meta.width / 2;
+    return this.tween({
+      targets: w,
+      x: tx,
+      duration: (dist / I.walkSpeed) * 1000,
+      onUpdate: () => (this.camCenter.x = Phaser.Math.Clamp(Math.round(w.x + 15), config.camera.closeUp.x, layout.world.width - half)),
+    }).then(() => {
+      anim.remove();
+      w.body_.setTexture('julian_pie_0');
+      w.head_.setY(-17);
+    });
+  }
+
+  // Un globo de texto sobre quien habla (nombre arriba, frase abajo). Click/Enter lo adelanta.
+  say(line) {
+    const I = narrative.intro;
+    const T = I.timing;
+    const U = config.ui;
+    const who = I.speakers[line.who];
+    const anchor = line.who === 'julian' ? this.walker.head_ : this.byId.federico_cabeza;
+    const ax = (line.who === 'julian' ? this.walker.x : 0) + anchor.x + 9;
+    const ay = (line.who === 'julian' ? this.walker.y : 0) + anchor.y - 4;
+
+    const name = this.txt(0, 0, who.name, who.color);
+    const text = this.txt(0, 10, wrap(line.text, 150), U.text);
+    const bw = Math.max(name.width, text.width) + 6;
+    const bh = 10 + text.height + 4;
+    const half = config.meta.width / 2;
+    const left = Phaser.Math.Clamp(Math.round(ax - bw / 2), this.camCenter.x - half + 3, this.camCenter.x + half - bw - 3);
+    const top = Math.round(ay - bh);
+    const bg = this.add.rectangle(0, 0, bw, bh, col(U.hudBg), 0.85).setOrigin(0);
+    const tail = this.add.rectangle(Phaser.Math.Clamp(Math.round(ax) - left - 1, 3, bw - 5), bh, 3, 2, col(U.hudBg), 0.85).setOrigin(0);
+    name.setPosition(3, 2);
+    text.setPosition(3, 12);
+    const bubble = this.add.container(left, top, [bg, tail, name, text]).setDepth(950).setAlpha(0);
+    this.uiCam.ignore(bubble);
+
+    const ms = Math.max(T.lineMin, line.text.length * T.perChar);
+    return this.tween({ targets: bubble, alpha: 1, duration: 150 })
+      .then(() => new Promise((r) => {
+        const timer = this.time.delayedCall(ms, () => done());
+        const done = () => {
+          timer.remove();
+          this.continueResolve = null;
+          r();
+        };
+        this.continueResolve = done;
+      }))
+      .then(() => this.tween({ targets: bubble, alpha: 0, duration: 150 }))
+      .then(() => bubble.destroy());
   }
 
   async nextTurn() {
@@ -323,6 +643,7 @@ export default class DeskScene extends Phaser.Scene {
 
     // Elipsis: fundido, placa de acto/hora, y el escritorio cambia mientras está negro.
     await this.tween({ targets: this.black, alpha: 1, duration: T.fadeOut });
+    this.startScreens(); // los monitores se mueven a partir de la placa del primer acto (no en la llegada)
     if (t.ti === 0) await this.showCard(t.act.card, t.act.cardSub, T.actCard);
     this.applyAct(t);
     (t.deskAdd ?? []).forEach((id) => this.addDeskObject(id));
@@ -340,6 +661,7 @@ export default class DeskScene extends Phaser.Scene {
   applyAct(t) {
     const act = t.act;
     this.header.setText(normalize(`${act.name} · ${t.time}`));
+    this.setClock(t.time);
     if (act.window) this.byId.ventana?.setTint(col(act.window));
     this.ambient.setFillStyle(col(act.ambient?.color ?? 'negro'), act.ambient?.alpha ?? 0);
     this.special.lluvia?.setVisible(!!act.rain);
@@ -358,6 +680,7 @@ export default class DeskScene extends Phaser.Scene {
 
   async choose(i) {
     const a = actions.list[i];
+    if (this.viewer) return this.closePhotos();
     if (!a || this.state !== 'choose') return;
     if (a.disabled) return this.refuse(i);
     this.state = 'busy';
@@ -366,6 +689,7 @@ export default class DeskScene extends Phaser.Scene {
 
     this.applyEffects(a, t);
     await this.actionVisual(a.visual);
+    if (config.rules.sleepAtZeroEnergy && this.stats.energia <= 0) return this.fallAsleep();
     if (a.spawnPool) this.spawnFromPool(a.spawnPool);
     await this.type(this.pickResponse(a, t));
     await this.waitContinue();
@@ -447,6 +771,39 @@ export default class DeskScene extends Phaser.Scene {
     this.tweens.add({ targets: s, alpha: def.alpha, duration: 400, yoyo: true, hold: def.duration - 800 });
   }
 
+  // ---------- derrota: sin energía ----------
+
+  async fallAsleep() {
+    const s = narrative.asleep;
+    const T = s.timing;
+    this.state = 'asleep';
+    this.setButtonsEnabled(false);
+    this.buttons.forEach((b) => b.bg.disableInteractive());
+    if (s.text) {
+      await this.type(s.text);
+      await this.wait(T.afterText);
+    }
+
+    // Cabeceos: la cabeza cae, los párpados pesan (la pantalla se oscurece de a poco) y el sonido se apaga.
+    this.audio.silence(T.soundFade / 1000);
+    const head = this.byId.julian_cabeza;
+    const lids = [0.55, 0.15, 0.8, 0.35, 1];
+    for (let i = 0; i < lids.length; i++) {
+      const down = i % 2 === 0;
+      if (head) this.tween({ targets: head, y: down ? '+=2' : '-=1', duration: T.nod, ease: 'Sine.easeInOut' });
+      await this.tween({ targets: this.black, alpha: lids[i], duration: T.nod, ease: 'Sine.easeInOut' });
+    }
+    await this.wait(T.black);
+
+    this.card.setScale(2).setText(normalize(s.title)).setAlpha(0);
+    this.cardSub.setText(wrap(s.sub, 240)).setAlpha(0);
+    await this.tween({ targets: this.card, alpha: 1, duration: T.textFade });
+    await this.tween({ targets: this.cardSub, alpha: 1, duration: T.textFade });
+    await this.wait(T.textHold);
+    await this.tween({ targets: [this.card, this.cardSub], alpha: 0, duration: T.textFade });
+    this.scene.start(s.goTo ?? 'Menu');
+  }
+
   // ---------- final ----------
 
   async finale() {
@@ -502,6 +859,31 @@ export default class DeskScene extends Phaser.Scene {
     await this.wait(T.placaHold);
     this.cardSub.setText(normalize(f.restart)).setAlpha(0);
     this.tween({ targets: this.cardSub, alpha: 0.6, duration: 800 });
+    if (f.film?.url) this.tween({ targets: this.filmButton(f.film), alpha: 1, duration: 800, delay: 600 });
     this.state = 'end';
+  }
+
+  // Botón de la pantalla final que abre el cortometraje en otra pestaña.
+  filmButton(film) {
+    const U = config.ui;
+    // Todo en coordenadas enteras (si no, el borde se ve doble). Las mayúsculas ocupan las filas 0–6
+    // de la fuente, así que el texto arranca 4 px abajo del borde para quedar centrado en los 15 px.
+    const top = H / 2 + 28, h = 15, pad = 8, gap = 5;
+    const label = this.ui(this.txt(0, top + 4, film.label, U.btnText), 5003);
+    const icon = this.ui(this.add.image(0, top + 3, 'icono_youtube').setOrigin(0), 5003);
+    const textW = label.width - 1; // sin el espacio que queda después de la última letra
+    const content = icon.width + gap + textW;
+    const bw = content + 2 * pad + ((W - content) % 2); // ancho de igual paridad que la pantalla: centro exacto
+    const left = (W - bw) / 2;
+    icon.setX((W - content) >> 1);
+    label.setX(icon.x + icon.width + gap);
+    const bg = this.ui(this.add.rectangle(left, top, bw, h, col(U.btn)).setOrigin(0), 5002);
+    const border = this.ui(this.add.rectangle(left - 1, top - 1, bw + 2, h + 2, col(U.panelLine)).setOrigin(0), 5001);
+    bg.setInteractive({ useHandCursor: true });
+    bg.on('pointerover', () => bg.setFillStyle(col(U.btnHover)));
+    bg.on('pointerout', () => bg.setFillStyle(col(U.btn)));
+    bg.on('pointerdown', (p, lx, ly, ev) => ev.stopPropagation()); // que no vuelva al menú
+    bg.on('pointerup', () => window.open(film.url, '_blank', 'noopener'));
+    return [border.setAlpha(0), bg.setAlpha(0), icon.setAlpha(0), label.setAlpha(0)];
   }
 }

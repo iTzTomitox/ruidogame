@@ -43,7 +43,7 @@
       "h": 14,
       "paint": "frame",
       "args": [
-        "stripes"
+        "photo"
       ],
       "file": null
     },
@@ -175,7 +175,7 @@
       "h": 40,
       "paint": "screen",
       "args": [
-        "tracks"
+        "tracks", 0
       ],
       "file": null
     },
@@ -196,12 +196,47 @@
       "file": null
     },
     "julian_cuerpo": {
-      "w": 40,
+      "w": 30,
       "h": 50,
       "paint": "body",
       "args": [
         "gris_azul"
       ],
+      "file": null
+    },
+    "julian_pie_0": {
+      "w": 30,
+      "h": 104,
+      "paint": "standing",
+      "args": ["gris_azul", "pizarra_osc", 0],
+      "file": null
+    },
+    "julian_pie_1": {
+      "w": 30,
+      "h": 104,
+      "paint": "standing",
+      "args": ["gris_azul", "pizarra_osc", 1],
+      "file": null
+    },
+    "julian_pie_2": {
+      "w": 30,
+      "h": 104,
+      "paint": "standing",
+      "args": ["gris_azul", "pizarra_osc", 2],
+      "file": null
+    },
+    "retrato_a": {
+      "w": 56,
+      "h": 48,
+      "paint": "portrait",
+      "args": ["a"],
+      "file": null
+    },
+    "retrato_b": {
+      "w": 56,
+      "h": 48,
+      "paint": "portrait",
+      "args": ["b"],
       "file": null
     },
     "silla": {
@@ -224,7 +259,7 @@
       "file": null
     },
     "federico_cuerpo": {
-      "w": 40,
+      "w": 30,
       "h": 50,
       "paint": "body",
       "args": [
@@ -323,8 +358,8 @@
       "file": null
     },
     "ropa_saco": {
-      "w": 40,
-      "h": 14,
+      "w": 36,
+      "h": 26,
       "paint": "jacket",
       "file": null
     },
@@ -461,6 +496,12 @@
       "paint": "train",
       "file": null
     },
+    "icono_youtube": {
+      "w": 13,
+      "h": 9,
+      "paint": "youtube",
+      "file": null
+    },
     "menu_ave_1": {
       "w": 5,
       "h": 3,
@@ -526,25 +567,26 @@
     {
       "sprite": "estante",
       "x": 62,
-      "y": 163,
+      "y": 179,
       "depth": 2
     },
     {
       "sprite": "cuadro_ciudad",
       "x": 66,
-      "y": 149,
+      "y": 165,
       "depth": 2
     },
     {
+      "id": "cuadro_foto",
       "sprite": "cuadro_rayas",
       "x": 92,
-      "y": 149,
+      "y": 165,
       "depth": 2
     },
     {
       "sprite": "cuadro_cielo",
       "x": 122,
-      "y": 149,
+      "y": 165,
       "depth": 2
     },
     {
@@ -649,7 +691,7 @@
     {
       "id": "julian_cuerpo",
       "sprite": "julian_cuerpo",
-      "x": 252,
+      "x": 257,
       "y": 198,
       "depth": 20
     },
@@ -661,6 +703,7 @@
       "depth": 21
     },
     {
+      "id": "julian_silla",
       "sprite": "silla",
       "x": 254,
       "y": 206,
@@ -711,7 +754,7 @@
     {
       "id": "federico_cuerpo",
       "sprite": "federico_cuerpo",
-      "x": 474,
+      "x": 479,
       "y": 198,
       "depth": 20
     },
@@ -884,7 +927,7 @@
     },
     "ropa_saco": {
       "sprite": "ropa_saco",
-      "x": 252,
+      "x": 254,
       "y": 204,
       "depth": 23
     },
@@ -959,7 +1002,7 @@
   "finaleMoves": {
     "_nota": "Durante el primer plano del final (fuera de cuadro), estos sprites se mueven acá: Federico acerca la silla.",
     "federico_cuerpo": {
-      "x": 332,
+      "x": 337,
       "y": 198
     },
     "federico_cabeza": {

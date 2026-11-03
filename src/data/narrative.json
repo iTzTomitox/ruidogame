@@ -24,7 +24,7 @@
           "time": "09:04",
           "pendientesAdd": 0,
           "deskAdd": [],
-          "text": "Llegás primero. La oficina todavía huele a lavandina. Tenés doce mails sin leer."
+          "text": "La oficina todavía huele a lavandina. Tenés doce mails sin leer."
         },
         {
           "time": "10:17",
@@ -189,6 +189,10 @@
     "lockedText": "",
     "placa": "A veces alcanza con estar.",
     "restart": "click para volver a empezar",
+    "film": {
+      "label": "Ver el cortometraje en YouTube",
+      "url": "https://youtu.be/7-Jof7okIOo"
+    },
     "timing": {
       "beforeHand": 2200,
       "handIn": 1100,
@@ -201,6 +205,60 @@
       "placaFade": 1800,
       "placaHold": 3500
     }
+  },
+  "intro": {
+    "_nota": "Llegada antes del turno 1: Julián entra caminando desde la izquierda, saluda a Federico y se sienta. Se saltea con ?turno=N. x = borde izquierdo de Julián de pie (30 px de ancho) en el mundo de 640x360; floorY = donde apoyan los pies. who: julian o federico (nombre y color en speakers).",
+    "enabled": true,
+    "card": "Lunes",
+    "cardSub": "08:58",
+    "startX": 20,
+    "greetX": 432,
+    "seatX": 257,
+    "floorY": 310,
+    "walkSpeed": 75,
+    "speakers": {
+      "julian": { "name": "Julián", "color": "pantalla_cla" },
+      "federico": { "name": "Federico", "color": "verde_cla" }
+    },
+    "lines": [
+      { "who": "julian", "text": "Buen día." },
+      { "who": "federico", "text": "¡Julián! Buen día. ¿Todo bien?" },
+      { "who": "julian", "text": "Todo bien, sí. ¿Vos?" },
+      { "who": "federico", "text": "Bien. Cualquier cosa, estoy acá al lado." }
+    ],
+    "timing": {
+      "card": 1400,
+      "fadeIn": 700,
+      "stepMs": 170,
+      "beforeGreet": 300,
+      "perChar": 60,
+      "lineMin": 1300,
+      "sitStep": 8,
+      "afterSit": 700
+    }
+  },
+  "asleep": {
+    "_nota": "Derrota por quedarse sin energía (config.json → rules.sleepAtZeroEnergy). goTo: 'Menu' (inicio) u 'Objective' (reintentar directo).",
+    "text": "Los párpados pesan. Solo un segundo...",
+    "title": "Te quedaste dormido.",
+    "sub": "Tomá otras decisiones para completar más tareas.",
+    "goTo": "Menu",
+    "timing": {
+      "afterText": 900,
+      "nod": 700,
+      "soundFade": 3000,
+      "black": 1200,
+      "textFade": 900,
+      "textHold": 3200
+    }
+  },
+  "photo": {
+    "close": "click para cerrar"
+  },
+  "objective": {
+    "title": "Objetivo",
+    "text": "Lograr completar la mayor cantidad de tareas.",
+    "hint": "click o enter para continuar"
   },
   "menu": {
     "start": "Empezar",

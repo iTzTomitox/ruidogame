@@ -238,6 +238,6 @@ export default class MenuScene extends Phaser.Scene {
     if (this.starting) return;
     this.starting = true;
     this.cameras.main.fadeOut(600, 0, 0, 0);
-    this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('Desk'));
+    this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('Objective'));
   }
 }

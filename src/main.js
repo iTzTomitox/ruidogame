@@ -3,6 +3,7 @@ import { config } from './data/index.js';
 import { currentZoom, applyZoom } from './systems/settings.js';
 import BootScene from './scenes/BootScene.js';
 import MenuScene from './scenes/MenuScene.js';
+import ObjectiveScene from './scenes/ObjectiveScene.js';
 import DeskScene from './scenes/DeskScene.js';
 
 const { width, height } = config.meta;
@@ -17,7 +18,7 @@ const game = new Phaser.Game({
   pixelArt: true,
   roundPixels: true,
   scale: { mode: Phaser.Scale.NONE, zoom: currentZoom() },
-  scene: [BootScene, MenuScene, DeskScene],
+  scene: [BootScene, MenuScene, ObjectiveScene, DeskScene],
 });
 window.addEventListener('resize', () => applyZoom(game));
 window.__game = game;

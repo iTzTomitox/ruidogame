@@ -167,7 +167,9 @@ export default class AudioEngine {
     g.cancelScheduledValues(now);
     g.setValueAtTime(g.value, now);
     g.linearRampToValueAtTime(0, now + Math.max(0.01, sec));
-    this.layers.forEach((L) => L.sound?.stop());
+    this.layers.forEach((L) => {
+      if (L.sound) this.scene.tweens.add({ targets: L.sound, volume: 0, duration: sec * 1000, onComplete: () => L.sound.stop() });
+    });
   }
 
   schedule() {

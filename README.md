@@ -14,6 +14,9 @@ Se navega con flechas/WASD y Enter, o con el mouse (click en la mitad izquierda/
 opción baja/sube el valor). Las preferencias se guardan en el navegador. Los textos del menú están
 en `narrative.json → menu`.
 
+Al empezar: pantalla de Objetivo (`narrative.json → objective`) y después la llegada (`intro`):
+Julián entra, saluda a Federico (diálogos en `intro.lines`) y se sienta. Recién ahí arranca el turno 1.
+
 Controles: click o teclas `1`–`6` para elegir, `Espacio`/`Enter`/click para avanzar el texto.
 Para probar un turno puntual: `http://localhost:5173/?turno=8` (arranca ahí con escritorio y ruido acumulados).
 

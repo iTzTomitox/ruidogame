@@ -211,6 +211,15 @@ export const PAINTERS = {
     stamp(p, 0, 0, rows, 'ciudad_4');
   },
 
+  // Logo de YouTube para el botón del cortometraje (13x9): píldora roja con brillo arriba a la izquierda.
+  youtube(p) {
+    const body = ['..#########..', '.###########.', '#############', '#############', '#############', '#############', '#############', '.###########.', '..#########..'];
+    stamp(p, 0, 0, body, 'yt_rojo');
+    stamp(p, 0, 0, ['.............', '.###.........', '##...........', '#............'], 'yt_brillo');
+    stamp(p, 0, 0, ['', '', '', '', '', '', '............#', '.........###.', '........###..'], 'yt_osc');
+    stamp(p, 5, 2, ['#...', '##..', '###.', '##..', '#...'], 'blanco');
+  },
+
   wall(p) {
     p.rect(0, 0, p.w, p.h, 'pizarra');
     p.vgrad(0, 0, p.w, 110, 'pizarra_osc', 'pizarra');
@@ -283,12 +292,118 @@ export const PAINTERS = {
       }
     } else if (kind === 'stripes') {
       ['rosa', 'blanco', 'pantalla_cla', 'hueso', 'rosa'].forEach((c, i) => p.rect(x0, y0 + i * 2, iw, 2, c));
+    } else if (kind === 'photo') {
+      // Foto de los dos (22x10): uno con flequillo y auriculares, otro con gorra; anteojos negros.
+      const C = {
+        '.': null, h: '#4a3326', k: '#121218', s: '#e2b493', S: '#c08a6e', m: '#9a5a50', n: '#1f2740',
+        w: 'blanco', c: '#1c2236', v: '#5a6488', r: 'cyan', R: 'rosa', t: '#cdd2ea', u: '#b7a9c4',
+      };
+      p.rect(x0, y0, 11, ih, '#8a7f74'); // pared cálida
+      p.rect(x0 + 11, y0, 11, ih, '#3a4660'); // luz fría de pantalla
+      const rows = [
+        '...hhhhh.....ccccccc..',
+        '..hhhhhhh...ccccccccc.',
+        '.khssssshk..vvvvvvvvv.',
+        '.kkkkkkkkk..kuuuuuuuk.',
+        '.ksssSsssk..kkrkkkRkk.',
+        '..sssssSs....uuuuuuu..',
+        '...ssmss......uumuu...',
+        '..nnswsnn....nntttnn..',
+        '.nnnnwnnnn..nnnttttnn.',
+        'nnnnnwnnnnnnnnnttttnnn',
+      ];
+      rows.forEach((r, j) => [...r].forEach((ch, i) => C[ch] && p.px(x0 + i, y0 + j, C[ch])));
     } else {
       p.vgrad(x0, y0, iw, ih, 'pantalla', 'cielo_dia');
       p.ellipse(x0 + 5, y0 + 3, 3, 1, 'blanco');
       p.rect(x0 + iw - 7, y0 + 3, 5, ih - 3, 'gris_azul');
       p.px(x0 + iw - 5, y0 + 5, 'hueso');
       p.px(x0 + iw - 5, y0 + 8, 'hueso');
+    }
+  },
+
+  // Retratos grandes de la foto del estante (se ven al hacer click en el cuadro).
+  // 'a': flequillo castaño, auriculares negros con micrófono, luz cálida.
+  // 'b': gorra azul, auriculares con luz, anteojos que reflejan la pantalla, luz fría.
+  portrait(p, [who]) {
+    const W = p.w, H = p.h, cx = W >> 1;
+    const A = who === 'a';
+    const P = A
+      ? { bg1: '#9a8e80', bg2: '#5e554d', skin: '#e2b493', shade: '#c08a6e', dark: '#9c6a55', blazer: '#1f2740', lapel: '#2e3a5c', shirt: '#eceae2', mouth: '#9a5a50' }
+      : { bg1: '#5a6a88', bg2: '#1a2030', skin: '#cdbccc', shade: '#9a90b0', dark: '#6e6890', blazer: '#141a2c', lapel: '#232c48', shirt: '#cdd2ea', mouth: '#6e5068' };
+    // fondo en franjas lisas (sin trama, que en grande se ve como una reja)
+    for (let i = 0; i < 4; i++) p.rect(0, Math.round((H * i) / 4), W, Math.ceil(H / 4), p.mix(P.bg1, P.bg2, i / 3));
+    if (A) {
+      for (let x = W - 14; x < W; x++) p.px(x, Math.round((x - (W - 14)) * 0.6), '#c2b4a2'); // esquina del techo
+      p.rect(0, 0, 5, H, '#4e463f');
+    } else {
+      p.rect(2, 0, 9, H, '#2a3346'); // placard
+      p.vline(8, 10, 12, '#6a7a96');
+      p.vline(10, 10, 12, '#6a7a96');
+      p.rect(9, 4, 38, 42, '#10131c'); // silla gamer
+      p.ellipse(28, 10, 19, 10, '#10131c');
+    }
+    // saco y remera
+    for (let y = 36; y < H; y++) {
+      const half = Math.min(cx, 14 + (y - 36) * 2);
+      p.hline(cx - half, y, half * 2, P.blazer);
+    }
+    for (let y = 35; y < H; y++) {
+      const half = Math.min(6, 2 + (y - 35));
+      p.hline(cx - half, y, half * 2, P.shirt);
+      p.px(cx - half - 1, y, P.lapel);
+      p.px(cx + half, y, P.lapel);
+    }
+    // cuello y cara
+    p.rect(cx - 5, 29, 10, 8, P.shade);
+    p.ellipse(cx - 0.5, 21, 9, 11, P.skin);
+    p.ellipse(cx + 4, 22, 4.5, 9, P.shade);
+    p.rect(cx - 1, 25, 2, 1, P.dark); // nariz
+    if (A) {
+      p.hline(cx - 3, 29, 6, P.mouth);
+      p.hline(cx - 2, 29, 3, '#eceae2'); // sonrisa con dientes
+      // pelo castaño con flequillo
+      p.ellipse(cx - 0.5, 12, 11, 7, '#4a3326');
+      for (let x = cx - 10; x <= cx + 9; x++) p.vline(x, 12, 2 + ((x * 7) % 3), '#4a3326');
+      p.noise(cx - 9, 7, 18, 6, '#6b4a36', 0.25);
+      // auriculares negros + micrófono
+      for (let a = Math.PI; a <= Math.PI * 2; a += 0.02) p.px(Math.round(cx + Math.cos(a) * 13), Math.round(17 + Math.sin(a) * 12), '#16161c');
+      [[cx - 15, 17], [cx + 11, 17]].forEach(([x, y]) => {
+        p.rect(x, y, 5, 13, '#16161c');
+        p.vline(x + 1, y + 2, 9, '#3a3a46');
+      });
+      p.hline(cx + 7, 31, 6, '#16161c');
+      p.rect(cx + 6, 30, 2, 2, '#16161c');
+      p.vline(cx + 5, 32, H - 32, '#16161c'); // cable
+    } else {
+      p.hline(cx - 3, 29, 6, P.mouth);
+      p.px(cx - 4, 28, P.mouth);
+      p.px(cx + 3, 28, P.mouth);
+      // gorra
+      p.ellipse(cx - 0.5, 11, 12, 8, '#1c2236');
+      p.rect(cx - 12, 11, 24, 4, '#1c2236');
+      p.noise(cx - 7, 6, 14, 4, '#3a4462', 0.3);
+      p.rect(cx - 14, 15, 28, 3, '#1c2236');
+      p.hline(cx - 14, 17, 28, '#5a6488'); // borde de la visera
+      // auriculares con luz
+      [[cx - 15, 17], [cx + 11, 17]].forEach(([x, y], i) => {
+        p.rect(x, y, 5, 13, '#141824');
+        p.vline(i ? x + 4 : x, y + 3, 7, 'cyan');
+      });
+    }
+    // anteojos negros
+    p.rect(cx - 10, 19, 20, 2, '#121218');
+    p.rect(cx - 9, 20, 8, 5, '#121218');
+    p.rect(cx + 1, 20, 8, 5, '#121218');
+    if (A) {
+      p.hline(cx - 8, 21, 3, '#3a4a7a');
+      p.hline(cx + 2, 21, 3, '#3a4a7a');
+    } else {
+      // reflejos de la pantalla
+      const refl = ['cyan', 'rosa', 'amarillo', 'verde_cla', 'pantalla_cla'];
+      [cx - 8, cx + 2].forEach((lx) => {
+        for (let i = 0; i < 6; i++) p.px(lx + (i % 3) * 2, 21 + Math.floor(i / 3) * 2, refl[(i + lx) % refl.length]);
+      });
     }
   },
 
@@ -309,8 +424,8 @@ export const PAINTERS = {
     const c = (p.w - 1) / 2;
     p.ellipse(c, c, c, c, 'pizarra_osc');
     p.ellipse(c, c, c - 1, c - 1, 'hueso');
-    p.vline(c, 2, c - 1, 'negro');
-    p.hline(c, c, c - 2, 'negro');
+    // marcas de las 12, 3, 6 y 9; las agujas las dibuja DeskScene según la hora del turno
+    [[c, 1], [p.w - 2, c], [c, p.h - 2], [1, c]].forEach(([x, y]) => p.px(x, y, 'gris_cla'));
   },
 
   tower(p) {
@@ -352,7 +467,8 @@ export const PAINTERS = {
     p.hline(cx - 10, bh + 4, 20, 'pizarra');
   },
 
-  screen(p, [kind]) {
+  // playhead 0: sin la línea blanca de reproducción (DeskScene la anima encima).
+  screen(p, [kind, playhead = 1]) {
     if (kind === 'tracks') {
       p.rect(0, 0, p.w, p.h, 'pantalla');
       p.rect(0, 0, p.w, 3, 'pantalla_osc');
@@ -374,7 +490,7 @@ export const PAINTERS = {
           x += len + 1 + Math.floor(p.rng() * 4);
         }
       });
-      p.vline(Math.floor(p.w * 0.42), 3, p.h - 3, 'blanco');
+      if (playhead) p.vline(Math.floor(p.w * 0.42), 3, p.h - 3, 'blanco');
     } else {
       p.rect(0, 0, p.w, p.h, 'pantalla_osc');
       p.rect(0, 0, p.w, 3, 'pantalla');
@@ -445,12 +561,20 @@ export const PAINTERS = {
     p.px(p.w - 1, 0, 'rojo');
   },
 
+  // Saco colgado del respaldo: cae por arriba y por los costados; en el medio se ve la silla.
   jacket(p) {
-    p.rect(2, 0, p.w - 4, p.h, 'pizarra_osc');
-    p.rect(0, 2, p.w, p.h - 2, 'pizarra_osc');
+    const c = 'pizarra_osc', top = 6;
+    p.rect(2, 0, p.w - 4, top, c);
+    p.rect(0, 2, p.w, top - 2, c);
     p.hline(3, 0, p.w - 6, 'gris_azul');
-    for (let x = 6; x < p.w - 4; x += 7) p.vline(x + Math.floor(p.rng() * 3), 3, p.h - 3, 'sombra');
-    p.rect(p.w / 2 - 5, 0, 10, 3, 'gris_azul');
+    p.rect((p.w >> 1) - 5, 0, 10, 2, 'gris_azul'); // cuello
+    p.hline(2, top, p.w - 4, 'sombra');
+    // costados que cuelgan; la manga izquierda un poco más larga
+    p.rect(0, top, 6, p.h - top, c);
+    p.vline(5, top, p.h - top, 'sombra');
+    p.rect(1, p.h - 2, 5, 2, 'sombra');
+    p.rect(p.w - 6, top, 6, p.h - top - 5, c);
+    p.vline(p.w - 6, top, p.h - top - 5, 'sombra');
   },
 
   scarf(p) {
@@ -534,6 +658,44 @@ export const PAINTERS = {
     p.noise(2, 2, p.w - 4, bh - 4, 'cuero_cla', 0.06);
     p.hline(r, 0, p.w - r * 2, 'cuero_cla');
     p.rect(2, bh - 3, p.w - 4, 3, 'madera_osc');
+  },
+
+  // Persona de pie vista de atrás, sin cabeza (la cabeza es el sprite de siempre, encima).
+  // frame 0: parado; 1 y 2: pasos (una pierna levantada y el brazo contrario adelante).
+  standing(p, [c, pants = 'pizarra_osc', frame = 0]) {
+    const w = p.w, cx = w >> 1, skin = 'piel';
+    // sombra en el piso
+    for (let y = p.h - 3; y < p.h; y++)
+      for (let x = 0; x < w; x++)
+        if (((x - cx) / (w / 2)) ** 2 + ((y - (p.h - 2)) / 1.6) ** 2 <= 1 && p.bayer(x, y) < 0.6) p.px(x, y, 'negro');
+    // cuello
+    p.rect(cx - 3, 0, 6, 4, p.dk(skin, 0.2));
+    // piernas
+    const legTop = 48, shoeH = 4, floor = p.h - 3;
+    [[7, 1], [15, 2]].forEach(([lx, f]) => {
+      const up = frame === f ? 3 : 0;
+      const sx = frame === f ? (f === 1 ? -1 : 1) : 0;
+      const bottom = floor - up;
+      p.rect(lx + sx, legTop, 8, bottom - shoeH - legTop, pants);
+      p.vline(lx + sx + 7, legTop, bottom - shoeH - legTop, p.dk(pants, 0.35));
+      p.rect(lx + sx - 1, bottom - shoeH, 9, shoeH, 'negro');
+      p.hline(lx + sx, bottom - shoeH, 7, 'sombra');
+    });
+    // torso con hombros redondeados
+    for (let y = 3; y < legTop; y++) {
+      const inset = y < 7 ? 7 - y : 0;
+      p.hline(inset, y, w - inset * 2, c);
+    }
+    p.rect(cx + 3, 7, w - cx - 9, legTop - 9, p.dk(c, 0.15));
+    p.hline(cx - 4, 3, 8, p.dk(c, 0.3)); // cuello de la remera
+    // brazos (separados del torso por una línea oscura) y manos
+    [[0, 1], [w - 5, 2]].forEach(([ax, f]) => {
+      const len = frame === f ? 34 : 38;
+      p.rect(ax, 7, 5, len, ax ? p.dk(c, 0.2) : c);
+      p.vline(ax ? ax - 1 : 5, 8, len - 2, p.dk(c, 0.4));
+      p.rect(ax + 1, 7 + len, 4, 4, ax ? p.dk(skin, 0.15) : skin);
+    });
+    p.hline(6, legTop - 2, w - 12, 'negro'); // cinturón
   },
 
   arm(p, [c]) {
