@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { config } from './data/index.js';
 import { currentZoom, applyZoom } from './systems/settings.js';
+import { setupCursors } from './systems/cursor.js';
 import BootScene from './scenes/BootScene.js';
 import MenuScene from './scenes/MenuScene.js';
 import ObjectiveScene from './scenes/ObjectiveScene.js';
@@ -21,4 +22,5 @@ const game = new Phaser.Game({
   scene: [BootScene, MenuScene, ObjectiveScene, DeskScene],
 });
 window.addEventListener('resize', () => applyZoom(game));
+game.events.once('ready', () => setupCursors(game));
 window.__game = game;

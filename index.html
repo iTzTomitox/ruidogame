@@ -8,6 +8,8 @@
       html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
       body { display: flex; align-items: center; justify-content: center; }
       #game canvas { display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
+      /* Flecha pixel art desde el arranque (después el juego cambia a mano / click: src/systems/cursor.js). */
+      html, body, #game canvas { cursor: url(cursor.png) 0 0, auto; }
     </style>
   </head>
   <body>

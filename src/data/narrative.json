@@ -187,7 +187,7 @@
   ],
   "finale": {
     "lockedText": "",
-    "placa": "A veces alcanza con estar.",
+    "placa": "Recuerda que estás trabajando para el sueño de otro.",
     "restart": "click para volver a empezar",
     "film": {
       "label": "Ver el cortometraje en YouTube",
@@ -216,15 +216,23 @@
     "seatX": 257,
     "floorY": 310,
     "walkSpeed": 75,
-    "speakers": {
-      "julian": { "name": "Julián", "color": "pantalla_cla" },
-      "federico": { "name": "Federico", "color": "verde_cla" }
-    },
     "lines": [
-      { "who": "julian", "text": "Buen día." },
-      { "who": "federico", "text": "¡Julián! Buen día. ¿Todo bien?" },
-      { "who": "julian", "text": "Todo bien, sí. ¿Vos?" },
-      { "who": "federico", "text": "Bien. Cualquier cosa, estoy acá al lado." }
+      {
+        "who": "julian",
+        "text": "Buen día."
+      },
+      {
+        "who": "federico",
+        "text": "¡Julián! Buen día. ¿Todo bien?"
+      },
+      {
+        "who": "julian",
+        "text": "Todo bien, sí. ¿Vos?"
+      },
+      {
+        "who": "federico",
+        "text": "Bien. Cualquier cosa, estoy acá al lado."
+      }
     ],
     "timing": {
       "card": 1400,
@@ -235,6 +243,45 @@
       "lineMin": 1300,
       "sitStep": 8,
       "afterSit": 700
+    }
+  },
+  "speakers": {
+    "julian": {
+      "name": "Julián",
+      "color": "pantalla_cla"
+    },
+    "federico": {
+      "name": "Federico",
+      "color": "verde_cla"
+    }
+  },
+  "help": {
+    "_nota": "Final alternativo: Pedir ayuda se habilita en un solo turno si Julián se cuidó (config.json → rules.askForHelp). cameraX: dónde se centra la cámara para que entren los dos.",
+    "unlockText": "Federico está a dos metros. Por primera vez en todo el día, pensás que podrías decírselo.",
+    "cameraX": 360,
+    "lines": [
+      {
+        "who": "julian",
+        "text": "Fede, ¿tenés un minuto?"
+      },
+      {
+        "who": "federico",
+        "text": "Claro. Vení, contame."
+      }
+    ],
+    "text": "Le mostrás la lista. La miran juntos.",
+    "placa": "Pedir ayuda también es hacer algo.",
+    "timing": {
+      "pan": 1200,
+      "silenceAfter": 500,
+      "silenceFade": 600,
+      "fxRelease": 2000,
+      "roll": 1600,
+      "taskTick": 140,
+      "hold": 1600,
+      "fadeOut": 1200,
+      "placaFade": 1800,
+      "placaHold": 3500
     }
   },
   "asleep": {
@@ -262,11 +309,36 @@
   },
   "menu": {
     "start": "Empezar",
+    "config": "Configuración",
+    "credits": "Créditos",
+    "back": "Volver",
     "sound": "Sonido",
     "resolution": "Resolución",
     "min": "mín",
     "max": "máx",
     "hint": "con auriculares",
-    "controls": "flechas: elegir y cambiar · enter: aceptar"
+    "controls": "flechas: elegir · enter: aceptar · esc: volver"
+  },
+  "credits": {
+    "_nota": "Pantalla de Créditos del menú. intro: línea de arriba (opcional). people: rol a la izquierda, nombre a la derecha.",
+    "intro": "Basado en el cortometraje RUIDO",
+    "people": [
+      {
+        "role": "Idea y dirección",
+        "name": "Schettino Luca y Beron Tomas"
+      },
+      {
+        "role": "Juego",
+        "name": "Beron Tomas"
+      },
+      {
+        "role": "Actuación",
+        "name": "Schettino Luca"
+      },
+      {
+        "role": "Sonido",
+        "name": "Beron Tomas"
+      }
+    ]
   }
 }

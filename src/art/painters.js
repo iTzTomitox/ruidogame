@@ -428,17 +428,18 @@ export const PAINTERS = {
     [[c, 1], [p.w - 2, c], [c, p.h - 2], [1, c]].forEach(([x, y]) => p.px(x, y, 'gris_cla'));
   },
 
-  tower(p) {
+  // on 0: apagado (sin luces)
+  tower(p, [on = 1]) {
     p.rect(0, 0, p.w, p.h, 'noche');
     p.outline(0, 0, p.w, p.h, 'negro');
     p.vline(1, 1, p.h - 2, 'pizarra_osc');
     for (let y = 3; y < 8; y += 2) p.hline(4, y, p.w - 8, 'sombra');
     for (let y = 10; y < p.h - 4; y += 3) {
-      p.px(4, y, 'cyan');
-      p.px(p.w - 5, y + 1, p.rng() < 0.6 ? 'cyan' : 'pantalla');
+      p.px(4, y, on ? 'cyan' : 'sombra');
+      p.px(p.w - 5, y + 1, !on ? 'sombra' : p.rng() < 0.6 ? 'cyan' : 'pantalla');
     }
     p.rect(8, p.h - 8, p.w - 16, 3, 'sombra');
-    p.px(p.w >> 1, p.h - 7, 'verde_cla');
+    p.px(p.w >> 1, p.h - 7, on ? 'verde_cla' : 'pizarra_osc');
   },
 
   books(p) {
@@ -513,7 +514,8 @@ export const PAINTERS = {
     }
   },
 
-  lamp(p) {
+  // on 0: apagada (foco oscuro, sin brillo en el borde)
+  lamp(p, [on = 1]) {
     const cx = p.w >> 1;
     p.rect(1, p.h - 3, p.w - 2, 3, 'sombra');
     p.hline(1, p.h - 3, p.w - 2, 'pizarra_cla');
@@ -524,8 +526,8 @@ export const PAINTERS = {
       p.px(cx - half, y, 'verde_osc');
       p.px(cx + half, y, 'verde_cla');
     }
-    p.hline(cx - 6, 11, 13, 'verde_cla');
-    p.px(cx, 12, 'amarillo');
+    p.hline(cx - 6, 11, 13, on ? 'verde_cla' : 'verde_osc');
+    p.px(cx, 12, on ? 'amarillo' : 'sombra');
     p.px(cx + 3, p.h - 4, 'naranja');
   },
 
@@ -759,6 +761,19 @@ export const PAINTERS = {
   },
 
   // Luz en bandas concéntricas (posterizada), se suma en modo ADD.
+  // Luz cálida de la lámpara sobre el escritorio (se dibuja en modo ADD, por eso colores oscuros).
+  lampLight(p) {
+    const cx = (p.w - 1) / 2, poolH = 10, coneH = p.h - poolH / 2;
+    // cono tenue desde la pantalla de la lámpara hasta el escritorio
+    for (let y = 0; y < coneH; y++) {
+      const half = 6 + (y / coneH) * (cx - 6);
+      p.hline(Math.round(cx - half), y, Math.round(half * 2) + 1, '#1e160a');
+    }
+    // charco de luz sobre el escritorio
+    const cy = p.h - poolH / 2;
+    [['#3a2a12', 1], ['#5a4220', 0.62], ['#7a5a2c', 0.3]].forEach(([c, k]) => p.ellipse(cx, cy, cx * k, (poolH / 2) * k, c));
+  },
+
   glow(p) {
     const cx = p.w / 2, cy = p.h / 2;
     [['sombra', 1], ['pizarra_osc', 0.72], ['pantalla_osc', 0.45]].forEach(([c, k]) =>

@@ -175,7 +175,8 @@
       "h": 40,
       "paint": "screen",
       "args": [
-        "tracks", 0
+        "tracks",
+        0
       ],
       "file": null
     },
@@ -208,35 +209,75 @@
       "w": 30,
       "h": 104,
       "paint": "standing",
-      "args": ["gris_azul", "pizarra_osc", 0],
+      "args": [
+        "gris_azul",
+        "pizarra_osc",
+        0
+      ],
       "file": null
     },
     "julian_pie_1": {
       "w": 30,
       "h": 104,
       "paint": "standing",
-      "args": ["gris_azul", "pizarra_osc", 1],
+      "args": [
+        "gris_azul",
+        "pizarra_osc",
+        1
+      ],
       "file": null
     },
     "julian_pie_2": {
       "w": 30,
       "h": 104,
       "paint": "standing",
-      "args": ["gris_azul", "pizarra_osc", 2],
+      "args": [
+        "gris_azul",
+        "pizarra_osc",
+        2
+      ],
       "file": null
     },
     "retrato_a": {
       "w": 56,
       "h": 48,
       "paint": "portrait",
-      "args": ["a"],
+      "args": [
+        "a"
+      ],
       "file": null
     },
     "retrato_b": {
       "w": 56,
       "h": 48,
       "paint": "portrait",
-      "args": ["b"],
+      "args": [
+        "b"
+      ],
+      "file": null
+    },
+    "lampara_off": {
+      "w": 14,
+      "h": 32,
+      "paint": "lamp",
+      "args": [
+        0
+      ],
+      "file": null
+    },
+    "torre_off": {
+      "w": 22,
+      "h": 38,
+      "paint": "tower",
+      "args": [
+        0
+      ],
+      "file": null
+    },
+    "luz_lampara": {
+      "w": 46,
+      "h": 24,
+      "paint": "lampLight",
       "file": null
     },
     "silla": {
@@ -651,6 +692,7 @@
       "depth": 12
     },
     {
+      "id": "torre",
       "sprite": "torre",
       "x": 88,
       "y": 185,
@@ -683,6 +725,7 @@
       "depth": 13
     },
     {
+      "id": "lampara",
       "sprite": "lampara",
       "x": 318,
       "y": 191,
@@ -997,6 +1040,13 @@
       "x": 284,
       "y": 199,
       "depth": 25
+    },
+    "luz_lampara": {
+      "sprite": "luz_lampara",
+      "x": 302,
+      "y": 203,
+      "depth": 14,
+      "blend": "ADD"
     }
   },
   "finaleMoves": {

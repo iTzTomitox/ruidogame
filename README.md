@@ -9,7 +9,8 @@ npm run build    # sale en dist/
 ```
 
 El juego arranca en un menú (ciudad al atardecer pintada por código, painter `city`) con
-**Empezar**, **Sonido** (0–100%) y **Resolución** (de 320x180 a la máxima que entra en la ventana).
+**Empezar**, **Configuración** (Sonido 0–100% y Resolución, de 320x180 a la máxima que entra en la ventana)
+y **Créditos** (`narrative.json → credits`).
 Se navega con flechas/WASD y Enter, o con el mouse (click en la mitad izquierda/derecha de una
 opción baja/sube el valor). Las preferencias se guardan en el navegador. Los textos del menú están
 en `narrative.json → menu`.

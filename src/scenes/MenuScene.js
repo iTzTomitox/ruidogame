@@ -1,18 +1,24 @@
 import Phaser from 'phaser';
 import { config, narrative } from '../data/index.js';
+import { CURSOR } from '../systems/cursor.js';
 import { col } from '../systems/palette.js';
 import { normalize } from '../systems/pixelFont.js';
 import { settings, maxZoom, currentZoom, applyZoom } from '../systems/settings.js';
 
 const { width: W, height: H } = config.meta;
-const ITEMS = ['start', 'sound', 'resolution'];
+// Opciones de cada página del menú.
+const PAGES = {
+  main: ['start', 'config', 'credits'],
+  config: ['sound', 'resolution', 'back'],
+  credits: ['back'],
+};
 
 // Capas del fondo animado, de atrás hacia adelante.
 const D = { back: 0, backLights: 1, birds: 2, front: 4, windows: 5, train: 5.5, frontLights: 6, cars: 7, ui: 20 };
 const CARS = ['menu_auto_rojo', 'menu_auto_azul', 'menu_auto_blanco', 'menu_auto_verde'];
 const rnd = Phaser.Math.Between;
 
-// Menú principal: ciudad al atardecer, título RUIDO y tres opciones (Empezar / Sonido / Resolución).
+// Menú principal: ciudad al atardecer, título RUIDO y Empezar / Configuración (sonido y resolución) / Créditos.
 export default class MenuScene extends Phaser.Scene {
   constructor() {
     super('Menu');
@@ -35,24 +41,21 @@ export default class MenuScene extends Phaser.Scene {
     );
     this.add.bitmapText(tx, ty, 'pixel', title).setOrigin(0.5).setScale(ts).setTint(col('blanco'));
 
-    // Panel de opciones.
-    const py = 92;
-    this.add.rectangle(W / 2, py + 20, 156, 48, col('ciudad_8'), 0.82);
-    this.add.rectangle(W / 2, py - 4, 156, 1, col('ciudad_3'));
-    this.add.rectangle(W / 2, py + 44, 156, 1, col('ciudad_3'));
+    // Panel de opciones (se reacomoda según la página: principal, configuración o créditos).
+    this.panel = this.add.rectangle(W / 2, 0, 156, 10, col('ciudad_8'), 0.82).setOrigin(0.5, 0);
+    this.lineTop = this.add.rectangle(W / 2, 0, 156, 1, col('ciudad_3'));
+    this.lineBottom = this.add.rectangle(W / 2, 0, 156, 1, col('ciudad_3'));
     this.highlight = this.add.rectangle(W / 2, 0, 150, 12, col('ciudad_5'));
 
-    this.items = ITEMS.map((id, i) => {
-      const y = py + i * 14;
-      const text = this.add.bitmapText(W / 2, y + 2, 'pixel', '').setOrigin(0.5, 0);
-      const zone = this.add.zone(W / 2, y + 6, 150, 13).setInteractive({ useHandCursor: true });
+    this.items = [0, 1, 2].map((i) => {
+      const text = this.add.bitmapText(W / 2, 0, 'pixel', '').setOrigin(0.5, 0);
+      const zone = this.add.zone(W / 2, 0, 150, 13).setInteractive({ cursor: CURSOR.hover });
       zone.on('pointerover', () => this.select(i));
       zone.on('pointerdown', (pointer) => {
         this.select(i);
-        if (id === 'start') this.activate();
-        else this.change(pointer.x < W / 2 ? -1 : 1);
+        this.press(pointer.x < W / 2 ? -1 : 1);
       });
-      return { id, y, text };
+      return { text, zone };
     });
 
     const M = narrative.menu;
@@ -62,13 +65,15 @@ export default class MenuScene extends Phaser.Scene {
     this.children.list.slice(uiFrom).forEach((o) => o.setDepth(D.ui));
 
     this.input.keyboard.on('keydown', (ev) => {
-      const k = ev.key;
-      if (k === 'ArrowUp' || k === 'w' || k === 'W') this.select((this.sel + ITEMS.length - 1) % ITEMS.length);
-      else if (k === 'ArrowDown' || k === 's' || k === 'S') this.select((this.sel + 1) % ITEMS.length);
+      const k = ev.key, n = this.ids().length;
+      if (k === 'ArrowUp' || k === 'w' || k === 'W') this.select((this.sel + n - 1) % n);
+      else if (k === 'ArrowDown' || k === 's' || k === 'S') this.select((this.sel + 1) % n);
       else if (k === 'ArrowLeft' || k === 'a' || k === 'A') this.change(-1);
       else if (k === 'ArrowRight' || k === 'd' || k === 'D') this.change(1);
-      else if (k === 'Enter' || k === ' ') ITEMS[this.sel] === 'start' ? this.activate() : this.change(1);
+      else if (k === 'Enter' || k === ' ') this.press(1);
+      else if ((k === 'Escape' || k === 'Backspace') && this.page !== 'main') this.go('main');
     });
+    this.go('main');
 
     this.scale.on('resize', this.render, this);
     this.events.once('shutdown', () => {
@@ -187,25 +192,90 @@ export default class MenuScene extends Phaser.Scene {
     this.render();
   }
 
+  ids() {
+    return PAGES[this.page];
+  }
+
+  // Cambia de página y reacomoda el panel. En créditos, la lista va arriba y "Volver" abajo.
+  go(page) {
+    const from = this.page;
+    this.page = page;
+    this.sel = page === 'main' && from ? Math.max(0, PAGES.main.indexOf(from)) : 0;
+    this.creditTexts?.forEach((t) => t.destroy());
+    this.creditTexts = [];
+
+    let top = 88, itemsTop = top + 4, pw = 156;
+    if (page === 'credits') {
+      const C = narrative.credits;
+      top = 62;
+      let y = top + 5;
+      const add = (str, color) => {
+        const t = this.add.bitmapText(0, y, 'pixel', normalize(str)).setTint(col(color)).setDepth(D.ui);
+        this.creditTexts.push(t);
+        return t;
+      };
+      const intro = C.intro && add(C.intro, 'ventana_rosa').setOrigin(0.5, 0).setX(W / 2);
+      if (intro) y += 13;
+      // dos columnas (rol | nombre) centradas como bloque, según el texto más largo de cada una
+      const rows = C.people.map(({ role, name }) => {
+        const r = [add(role, 'gris_cla'), add(name, 'blanco')];
+        y += 10;
+        return r;
+      });
+      const roleW = Math.max(...rows.map(([r]) => r.width)), nameW = Math.max(...rows.map(([, n]) => n.width));
+      const split = Math.round((W - (roleW + 8 + nameW)) / 2) + roleW;
+      rows.forEach(([r, n]) => (r.setOrigin(1, 0).setX(split), n.setX(split + 8)));
+      pw = Math.max(pw, roleW + 8 + nameW + 20, (intro?.width ?? 0) + 20);
+      itemsTop = y + 3;
+    }
+    const n = this.ids().length;
+    const bottom = itemsTop + n * 14 + 2;
+    this.panel.setY(top).setSize(pw, bottom - top);
+    this.lineTop.setY(top).setSize(pw, 1);
+    this.lineBottom.setY(bottom).setSize(pw, 1);
+    this.items.forEach((it, i) => {
+      const y = itemsTop + i * 14;
+      it.y = y;
+      it.text.setY(y + 2).setVisible(i < n);
+      it.zone.setY(y + 6);
+      if (i < n) it.zone.setInteractive();
+      else it.zone.disableInteractive();
+    });
+    this.render();
+  }
+
   label(id) {
     const M = narrative.menu;
-    if (id === 'start') return M.start;
     if (id === 'sound') return `${M.sound}  < ${Math.round(settings.volume * 100)}% >`;
-    const z = currentZoom(), max = maxZoom();
-    const tag = z === max ? ` ${M.max}` : z === 1 ? ` ${M.min}` : '';
-    return `${M.resolution}  < ${W * z}x${H * z}${tag} >`;
+    if (id === 'resolution') {
+      const z = currentZoom(), max = maxZoom();
+      const tag = z === max ? ` ${M.max}` : z === 1 ? ` ${M.min}` : '';
+      return `${M.resolution}  < ${W * z}x${H * z}${tag} >`;
+    }
+    return M[id];
   }
 
   render() {
+    const ids = this.ids();
     this.items.forEach((it, i) => {
+      if (i >= ids.length) return;
       const on = i === this.sel;
-      it.text.setText(normalize(this.label(it.id))).setTint(col(on ? 'blanco' : 'gris_cla'));
+      it.text.setText(normalize(this.label(ids[i]))).setTint(col(on ? 'blanco' : 'gris_cla'));
       if (on) this.highlight.setY(it.y + 6);
     });
   }
 
+  // Enter / click sobre la opción elegida.
+  press(dir) {
+    const id = this.ids()[this.sel];
+    if (id === 'start') return this.activate();
+    if (id === 'config' || id === 'credits') return this.go(id);
+    if (id === 'back') return this.go('main');
+    this.change(dir);
+  }
+
   change(dir) {
-    const id = ITEMS[this.sel];
+    const id = this.ids()[this.sel];
     if (id === 'sound') {
       settings.volume += dir * 0.1;
       this.blip();

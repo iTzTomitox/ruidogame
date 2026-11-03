@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { config, scene as layout, actions, narrative } from '../data/index.js';
 import AudioEngine from '../systems/AudioEngine.js';
+import { CURSOR } from '../systems/cursor.js';
 import { col, hex } from '../systems/palette.js';
 import { normalize, wrap } from '../systems/pixelFont.js';
 
@@ -18,6 +19,10 @@ export default class DeskScene extends Phaser.Scene {
     this.state = 'busy'; // busy | choose | finale | end
     this.stats = Object.fromEntries(Object.entries(config.stats).map(([k, s]) => [k, s.start]));
     this.ruidoMax = config.stats.ruido.max;
+    this.care = { minEnergia: this.stats.energia, maxSueno: this.stats.sueno };
+    this.helpOn = false;
+    this.lampOn = true;
+    this.monitorsOn = true;
     this.turns = narrative.acts.flatMap((act, ai) => act.turns.map((t, ti) => ({ ...t, act, ai, ti })));
     this.turnIndex = -1;
     this.pools = JSON.parse(JSON.stringify(layout.pools));
@@ -89,23 +94,73 @@ export default class DeskScene extends Phaser.Scene {
     this.uiCam.ignore(this.ambient);
     this.buildScreens();
     this.buildClock();
+    this.special.luz_lampara?.setVisible(true);
     this.buildPhoto();
   }
 
   // La foto del estante: con click se ven los dos retratos en grande (otro click los cierra).
   buildPhoto() {
-    const frame = this.byId.cuadro_foto;
-    if (!frame) return;
-    const ring = this.add.rectangle(frame.x - 1, frame.y - 1, frame.width + 2, frame.height + 2)
-      .setOrigin(0).setStrokeStyle(1, col('hueso')).setDepth(frame.depth).setVisible(false);
+    this.clickable(this.byId.cuadro_foto, () => this.openPhotos());
+    this.clickable(this.byId.lampara, () => this.toggleLamp());
+    this.clickable(this.byId.torre, () => this.toggleMonitors());
+  }
+
+  // Objeto del escritorio que se puede tocar: borde claro al pasar el mouse y acción al hacer click.
+  // Se vuelven clickeables recién con la placa del primer acto (startDay); no en los finales.
+  clickable(obj, onClick) {
+    if (!obj) return;
+    this.clickables ??= [];
+    this.clickables.push(obj);
+    const ring = this.add.rectangle(obj.x - 1, obj.y - 1, obj.width + 2, obj.height + 2)
+      .setOrigin(0).setStrokeStyle(1, col('hueso')).setDepth(obj.depth).setVisible(false);
     this.uiCam.ignore(ring);
-    frame.setInteractive({ useHandCursor: true });
-    frame.on('pointerover', () => ring.setVisible(true));
-    frame.on('pointerout', () => ring.setVisible(false));
-    frame.on('pointerdown', (p, lx, ly, ev) => {
+    obj.on('pointerover', () => ring.setVisible(true));
+    obj.on('pointerout', () => ring.setVisible(false));
+    obj.on('pointerdown', (p, lx, ly, ev) => {
       ev.stopPropagation();
-      if (!['finale', 'asleep', 'end'].includes(this.state)) this.openPhotos();
+      if (this.viewer) return this.closePhotos();
+      if (!['finale', 'asleep', 'end'].includes(this.state)) onClick();
     });
+  }
+
+  // Lámpara: se apaga y se prende (cambia el foco y la luz sobre el escritorio).
+  toggleLamp() {
+    this.lampOn = !this.lampOn;
+    this.byId.lampara.setTexture(this.lampOn ? 'lampara' : 'lampara_off');
+    this.special.luz_lampara?.setVisible(this.lampOn);
+    this.click();
+  }
+
+  // Gabinete: apaga y prende los dos monitores de Julián (con lo que se mueve encima y el brillo de noche).
+  toggleMonitors() {
+    this.monitorsOn = !this.monitorsOn;
+    const on = this.monitorsOn;
+    this.byId.torre.setTexture(on ? 'torre' : 'torre_off');
+    const screens = ['pantalla_a', 'pantalla'].flatMap((id) => [this.byId[id], ...(this.screenFx[id] ?? [])]).filter(Boolean);
+    this.tweens.killTweensOf(screens.filter((o) => o.type !== 'Rectangle'));
+    if (on) {
+      screens.forEach((o) => o.setVisible(true).setAlpha(0));
+      this.tweens.add({ targets: screens, alpha: 1, duration: 350 });
+    } else screens.forEach((o) => o.setVisible(false));
+    const glow = this.turns[Math.max(0, this.turnIndex)]?.act.glow ?? 0;
+    this.special.brillo?.setVisible(on && glow > 0);
+    this.click();
+  }
+
+  // Un "clic" seco de interruptor, al volumen elegido en el menú.
+  click() {
+    const c = this.audio.ctx;
+    if (!c || this.audio.silenced) return;
+    const t = c.currentTime, o = c.createOscillator(), g = c.createGain();
+    o.type = 'square';
+    o.frequency.setValueAtTime(1400, t);
+    o.frequency.exponentialRampToValueAtTime(500, t + 0.03);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.12, t + 0.002);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+    o.connect(g).connect(this.audio.master);
+    o.start(t);
+    o.stop(t + 0.06);
   }
 
   openPhotos() {
@@ -135,27 +190,33 @@ export default class DeskScene extends Phaser.Scene {
   }
 
   // Pantallas vivas: en las de código se sigue tipeando abajo (con cursor), en la de pistas avanza el cabezal.
-  // Quedan quietas durante la llegada; arrancan con la placa del primer acto (startScreens).
+  // Quedan quietas durante la llegada; arrancan con la placa del primer acto (startDay).
   buildScreens() {
     const world = (o) => (this.uiCam.ignore(o), o.setDepth(14));
     this.screenStarters = [];
+    this.screenFx = {}; // lo que se anima encima de cada pantalla (para apagarla desde el gabinete)
     for (const def of layout.static) {
       const tex = layout.sprites[def.sprite];
       if (tex?.paint !== 'screen' || tex.file) continue;
       const { w, h } = tex;
       if (tex.args?.[0] === 'tracks') {
         const head = world(this.add.rectangle(def.x + 10, def.y + 3, 1, h - 3, col('blanco')).setOrigin(0));
+        if (def.id) this.screenFx[def.id] = [head];
         this.screenStarters.push(() => this.tweens.add({ targets: head, x: def.x + w - 2, duration: 9000, repeat: -1 }));
       } else {
-        this.screenStarters.push(this.typingScreen(world(this.add.graphics()), def.x + 13, def.y + h - 9, w - 15));
+        const g = world(this.add.graphics());
+        if (def.id) this.screenFx[def.id] = [g];
+        this.screenStarters.push(this.typingScreen(g, def.x + 13, def.y + h - 9, w - 15));
       }
     }
   }
 
-  startScreens() {
-    if (this.screensOn) return;
-    this.screensOn = true;
+  // Arranca la jornada (placa del primer acto, no en la llegada): se mueven los monitores y la foto se puede abrir.
+  startDay() {
+    if (this.dayStarted) return;
+    this.dayStarted = true;
     this.screenStarters.forEach((start) => start());
+    this.clickables?.forEach((o) => o.setInteractive({ cursor: CURSOR.hover }));
   }
 
   // Tres renglones al pie de una pantalla de código que se van escribiendo de a poco, con pausas.
@@ -253,6 +314,7 @@ export default class DeskScene extends Phaser.Scene {
     this.bars = {};
     this.ghosts = {};
     this.deltas = {};
+    const hudFrom = this.fadeable.length;
     const keys = ['energia', 'sueno'];
     const labels = keys.map((k, i) => keep(this.ui(this.txt(hud.x, hud.y + i * hud.rowH, config.stats[k].label, U.text), 1001)));
     const bx = hud.x + Math.max(...labels.map((l) => l.width)) + 4;
@@ -265,6 +327,7 @@ export default class DeskScene extends Phaser.Scene {
     });
     const bgW = bx + this.barW + 4 + hud.deltaW - hud.x + 6;
     keep(this.ui(this.add.rectangle(hud.x - 3, hud.y - 2, bgW, keys.length * hud.rowH + 2, col(U.hudBg), hud.bgAlpha).setOrigin(0), 1000));
+    this.hudParts = this.fadeable.slice(hudFrom);
     this.tweens.add({ targets: Object.values(this.ghosts), alpha: 0.25, yoyo: true, repeat: -1, duration: 350 });
 
     // En el panel: pendientes + acto/hora.
@@ -296,7 +359,7 @@ export default class DeskScene extends Phaser.Scene {
       const text = `${i + 1} ${a.label}`;
       const bg = this.ui(this.add.rectangle(x, y, 102, 12, col(U.btn)).setOrigin(0), 1001);
       const label = this.ui(this.txt(x + 4, y + 2, text, a.disabled ? U.btnTextDisabled : U.btnText), 1002);
-      bg.setInteractive({ useHandCursor: true });
+      bg.setInteractive({ cursor: CURSOR.hover });
       bg.on('pointerover', () => {
         this.hovered = i;
         if (this.state !== 'choose') return;
@@ -600,10 +663,12 @@ export default class DeskScene extends Phaser.Scene {
     const I = narrative.intro;
     const T = I.timing;
     const U = config.ui;
-    const who = I.speakers[line.who];
-    const anchor = line.who === 'julian' ? this.walker.head_ : this.byId.federico_cabeza;
-    const ax = (line.who === 'julian' ? this.walker.x : 0) + anchor.x + 9;
-    const ay = (line.who === 'julian' ? this.walker.y : 0) + anchor.y - 4;
+    const who = narrative.speakers[line.who];
+    // Julián de pie (llegada) o sentado; Federico siempre sentado
+    const walking = line.who === 'julian' && this.walker;
+    const anchor = walking ? this.walker.head_ : this.byId[`${line.who}_cabeza`];
+    const ax = (walking ? this.walker.x : 0) + anchor.x + 9;
+    const ay = (walking ? this.walker.y : 0) + anchor.y - 4;
 
     const name = this.txt(0, 0, who.name, who.color);
     const text = this.txt(0, 10, wrap(line.text, 150), U.text);
@@ -643,7 +708,7 @@ export default class DeskScene extends Phaser.Scene {
 
     // Elipsis: fundido, placa de acto/hora, y el escritorio cambia mientras está negro.
     await this.tween({ targets: this.black, alpha: 1, duration: T.fadeOut });
-    this.startScreens(); // los monitores se mueven a partir de la placa del primer acto (no en la llegada)
+    this.startDay(); // monitores y foto se activan a partir de la placa del primer acto (no en la llegada)
     if (t.ti === 0) await this.showCard(t.act.card, t.act.cardSub, T.actCard);
     this.applyAct(t);
     (t.deskAdd ?? []).forEach((id) => this.addDeskObject(id));
@@ -654,8 +719,37 @@ export default class DeskScene extends Phaser.Scene {
 
     if (t.event === 'sombra') this.time.delayedCall(t.eventDelay ?? 800, () => this.crossShadow());
     await this.type(t.text);
+    if (this.checkHelp()) {
+      // turno de la oportunidad: un aviso aparte para que se note
+      await this.waitContinue();
+      await this.type(narrative.help.unlockText);
+    }
     this.state = 'choose';
     this.setButtonsEnabled(true);
+  }
+
+  // "Pedir ayuda" se habilita en un solo turno (config.rules.askForHelp.turn), y solo si Julián se cuidó
+  // toda la jornada. Si en ese turno elige otra cosa, la oportunidad pasa y el botón vuelve a bloquearse.
+  checkHelp() {
+    const R = config.rules.askForHelp;
+    const on = !!R?.enabled && this.turnIndex + 1 === R.turn && this.care.minEnergia >= R.minEnergy && this.care.maxSueno <= R.maxSleep;
+    this.setHelp(on);
+    return on;
+  }
+
+  // Botón "Pedir ayuda" habilitado (verde, con un borde que titila) o bloqueado.
+  setHelp(on) {
+    this.helpOn = on;
+    const b = this.buttons.find((x) => x.a.id === 'ayuda');
+    if (!b) return;
+    b.label.setTint(col(on ? config.ui.helpText : config.ui.btnTextDisabled));
+    this.helpRing ??= this.ui(
+      this.add.rectangle(b.bg.x - 1, b.bg.y - 1, b.bg.width + 2, b.bg.height + 2).setOrigin(0).setStrokeStyle(1, col(config.ui.helpText)),
+      1003,
+    );
+    this.tweens.killTweensOf(this.helpRing);
+    this.helpRing.setVisible(on).setAlpha(1);
+    if (on) this.tweens.add({ targets: this.helpRing, alpha: 0.15, duration: 450, yoyo: true, repeat: -1 });
   }
 
   applyAct(t) {
@@ -665,7 +759,7 @@ export default class DeskScene extends Phaser.Scene {
     if (act.window) this.byId.ventana?.setTint(col(act.window));
     this.ambient.setFillStyle(col(act.ambient?.color ?? 'negro'), act.ambient?.alpha ?? 0);
     this.special.lluvia?.setVisible(!!act.rain);
-    this.special.brillo?.setVisible((act.glow ?? 0) > 0).setAlpha(act.glow ?? 0);
+    this.special.brillo?.setVisible((act.glow ?? 0) > 0 && this.monitorsOn).setAlpha(act.glow ?? 0);
   }
 
   addDeskObject(id) {
@@ -682,7 +776,9 @@ export default class DeskScene extends Phaser.Scene {
     const a = actions.list[i];
     if (this.viewer) return this.closePhotos();
     if (!a || this.state !== 'choose') return;
+    if (a.id === 'ayuda' && this.helpOn) return this.askForHelp();
     if (a.disabled) return this.refuse(i);
+    if (this.helpOn) this.setHelp(false); // eligió otra cosa: la oportunidad pasa
     this.state = 'busy';
     this.setButtonsEnabled(false);
     const t = this.turns[this.turnIndex];
@@ -703,6 +799,9 @@ export default class DeskScene extends Phaser.Scene {
     for (const k of ['energia', 'sueno', 'pendientes']) {
       if (e[k]) this.stats[k] = Phaser.Math.Clamp(this.stats[k] + e[k], 0, config.stats[k].max ?? Infinity);
     }
+    // para el final de pedir ayuda: lo más bajo que llegó la energía y lo más alto el sueño
+    this.care.minEnergia = Math.min(this.care.minEnergia, this.stats.energia);
+    this.care.maxSueno = Math.max(this.care.maxSueno, this.stats.sueno);
     // Ruido sube siempre, elijas lo que elijas.
     const R = config.ruido;
     let r = this.stats.ruido + t.act.ruidoBase + Math.max(R.minPerAction, e.ruido ?? 0);
@@ -804,6 +903,67 @@ export default class DeskScene extends Phaser.Scene {
     this.scene.start(s.goTo ?? 'Menu');
   }
 
+  // ---------- final alternativo: pedir ayuda ----------
+
+  async askForHelp() {
+    const P = narrative.help;
+    const T = P.timing;
+    this.state = 'finale';
+    this.setButtonsEnabled(false);
+    this.buttons.forEach((b) => b.bg.disableInteractive());
+    this.helpRing?.setVisible(false);
+    this.narr.setText('');
+
+    // Julián gira hacia Federico; la cámara se corre para que entren los dos.
+    const julian = ['julian_cuerpo', 'julian_cabeza', 'julian_silla'].map((id) => this.byId[id]).filter(Boolean);
+    this.tween({ targets: julian, x: '+=3', duration: 400, ease: 'Sine.easeOut' });
+    this.tween({ targets: this.hudParts, alpha: 0, duration: 400 }); // acá importan los pendientes, no las barras
+    await this.tween({ targets: this.camCenter, x: P.cameraX, duration: T.pan, ease: 'Sine.easeInOut' });
+
+    // Él lo decide: el Ruido se corta y la oscuridad se abre; recién entonces habla (así el globo se lee).
+    this.audio.silence(T.silenceFade / 1000);
+    this.shakeK = 0;
+    this.tweenFX(0, T.fxRelease);
+    await this.wait(T.fxRelease + T.silenceAfter);
+    const [first, ...rest] = P.lines;
+    await this.say(first);
+
+    // Federico gira y acerca la silla.
+    this.tween({ targets: this.byId.federico_cabeza, x: '-=2', duration: 250 });
+    for (const line of rest) await this.say(line);
+    const moves = Object.entries(layout.finaleMoves ?? {}).filter(([id]) => !id.startsWith('_'));
+    await this.tween({ targets: moves.map(([id]) => this.byId[id]), duration: T.roll, ease: 'Sine.easeInOut', x: (target) => moves.find(([id]) => this.byId[id] === target)[1].x });
+
+    // Las tareas, entre los dos, bajan a 0.
+    if (P.text) await this.type(P.text);
+    await new Promise((res) => {
+      const ev = this.time.addEvent({
+        delay: T.taskTick,
+        loop: true,
+        callback: () => {
+          this.stats.pendientes = Math.max(0, this.stats.pendientes - 1);
+          this.updateHUD();
+          if (!this.stats.pendientes) {
+            ev.remove();
+            res();
+          }
+        },
+      });
+    });
+    await this.wait(T.hold);
+
+    // Negro y placa.
+    await this.tween({ targets: this.black, alpha: 1, duration: T.fadeOut });
+    this.card.setScale(config.font.placaScale).setText(normalize(P.placa)).setAlpha(0);
+    await this.tween({ targets: this.card, alpha: 1, duration: T.placaFade });
+    await this.wait(T.placaHold);
+    const f = narrative.finale;
+    this.cardSub.setText(normalize(f.restart)).setAlpha(0);
+    this.tween({ targets: this.cardSub, alpha: 0.6, duration: 800 });
+    if (f.film?.url) this.tween({ targets: this.filmButton(f.film), alpha: 1, duration: 800, delay: 600 });
+    this.state = 'end';
+  }
+
   // ---------- final ----------
 
   async finale() {
@@ -879,7 +1039,7 @@ export default class DeskScene extends Phaser.Scene {
     label.setX(icon.x + icon.width + gap);
     const bg = this.ui(this.add.rectangle(left, top, bw, h, col(U.btn)).setOrigin(0), 5002);
     const border = this.ui(this.add.rectangle(left - 1, top - 1, bw + 2, h + 2, col(U.panelLine)).setOrigin(0), 5001);
-    bg.setInteractive({ useHandCursor: true });
+    bg.setInteractive({ cursor: CURSOR.hover });
     bg.on('pointerover', () => bg.setFillStyle(col(U.btnHover)));
     bg.on('pointerout', () => bg.setFillStyle(col(U.btn)));
     bg.on('pointerdown', (p, lx, ly, ev) => ev.stopPropagation()); // que no vuelva al menú

@@ -72,6 +72,7 @@
     "btnTextDisabled": "gris_azul",
     "barBg": "pizarra_osc",
     "deltaGood": "verde_cla",
+    "helpText": "verde_cla",
     "deltaBad": "luz_roja",
     "hud": {
       "_nota": "Barras de Energía y Sueño (posición en pantalla, alto de cada fila, ancho de barra, lugar para el +N/-N y opacidad del fondo).",
@@ -111,7 +112,14 @@
   },
   "rules": {
     "_nota": "sleepAtZeroEnergy: si Energía llega a 0, Julián se duerme y se pierde (textos en narrative.json → asleep).",
-    "sleepAtZeroEnergy": true
+    "sleepAtZeroEnergy": true,
+    "askForHelp": {
+      "_nota": "Pedir ayuda se habilita solo en el turno 'turn' (1 a 15) si la energía nunca bajó de minEnergy y el sueño nunca pasó de maxSleep. Si en ese turno se elige otra cosa, la oportunidad pasa.",
+      "enabled": true,
+      "turn": 13,
+      "minEnergy": 30,
+      "maxSleep": 70
+    }
   },
   "ruido": {
     "_nota": "Cada turno: ruido += ruidoBase del acto + max(minPerAction, effects.ruido de la acción). Nunca baja.",
