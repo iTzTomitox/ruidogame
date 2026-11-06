@@ -3,9 +3,14 @@
   "list": [
     {
       "id": "trabajar",
-      "label": "Trabajar",
+      "label": "Trabajo",
       "visual": "type",
-      "effects": { "energia": -12, "sueno": 6, "pendientes": -4, "ruido": 2 },
+      "effects": {
+        "energia": -12,
+        "sueno": 6,
+        "pendientes": -4,
+        "ruido": 2
+      },
       "responses": {
         "dia": [
           "Contestás dos mails. Llegan tres.",
@@ -26,10 +31,14 @@
     },
     {
       "id": "cafe",
-      "label": "Tomar café",
+      "label": "Tomo café",
       "visual": "sip",
       "spawnPool": "tazas",
-      "effects": { "energia": 14, "sueno": -10, "ruido": 4 },
+      "effects": {
+        "energia": 14,
+        "sueno": -10,
+        "ruido": 4
+      },
       "responses": {
         "dia": [
           "El café de la máquina sabe a cartón tibio. Igual ayuda.",
@@ -50,9 +59,13 @@
     },
     {
       "id": "ojos",
-      "label": "Cerrar los ojos",
+      "label": "Cierro los ojos",
       "visual": "blink",
-      "effects": { "energia": 6, "sueno": 8, "ruido": 3 },
+      "effects": {
+        "energia": 6,
+        "sueno": 8,
+        "ruido": 3
+      },
       "responses": {
         "dia": [
           "Cerrás los ojos. Escuchás el teclado de alguien más.",
@@ -73,9 +86,13 @@
     },
     {
       "id": "cara",
-      "label": "Mojarse la cara",
+      "label": "Me mojo la cara",
       "visual": "flash",
-      "effects": { "energia": 5, "sueno": -12, "ruido": 2 },
+      "effects": {
+        "energia": 5,
+        "sueno": -12,
+        "ruido": 2
+      },
       "responses": {
         "dia": [
           "Agua fría. El espejo del baño te devuelve una cara conocida.",
@@ -96,9 +113,11 @@
     },
     {
       "id": "manga",
-      "label": "Acomodarse la manga",
+      "label": "Me acomodo la manga",
       "visual": "twitch",
-      "effects": { "ruido": 1 },
+      "effects": {
+        "ruido": 1
+      },
       "responses": {
         "dia": [
           "Te acomodás la manga. Estaba bien.",
@@ -119,7 +138,7 @@
     },
     {
       "id": "ayuda",
-      "label": "Pedir ayuda",
+      "label": "Pido ayuda",
       "disabled": true,
       "refusals": [
         "No quiero molestar.",

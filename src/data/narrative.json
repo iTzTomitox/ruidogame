@@ -304,7 +304,7 @@
   },
   "objective": {
     "title": "Objetivo",
-    "text": "Lograr completar la mayor cantidad de tareas.",
+    "text": "Completar la mayor cantidad de tareas dentro del trabajo, sin quedarte sin energía y sin dormirse.",
     "hint": "click o enter para continuar"
   },
   "menu": {
@@ -359,6 +359,20 @@
         "id": "dormido",
         "name": "Te quedaste dormido"
       }
+    ]
+  },
+  "rules": {
+    "_nota": "Pantalla de reglas (botón de arriba a la derecha durante el juego).",
+    "button": "?",
+    "title": "Reglas",
+    "close": "click para cerrar",
+    "lines": [
+      "Cada turno elegís una acción. Pasá el mouse por encima para ver cuánto cambian tu Energía, tu Sueño y tus Pendientes.",
+      "Los pendientes no paran de llegar: cada turno aparecen más.",
+      "Si la Energía llega a 0, te quedás dormido y perdés.",
+      "El ruido siempre sube, elijas lo que elijas. Los sonidos se van a ir volviendo más fuertes.",
+      "Algunas cosas de la oficina se pueden tocar.",
+      "Se juega mejor con auriculares."
     ]
   }
 }

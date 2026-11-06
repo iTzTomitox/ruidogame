@@ -119,7 +119,7 @@ export default class DeskScene extends Phaser.Scene {
     obj.on('pointerout', () => ring.setVisible(false));
     obj.on('pointerdown', (p, lx, ly, ev) => {
       ev.stopPropagation();
-      if (this.viewer) return this.closePhotos();
+      if (this.viewer) return this.closeViewer();
       if (!['finale', 'asleep', 'end'].includes(this.state)) onClick();
     });
   }
@@ -184,7 +184,36 @@ export default class DeskScene extends Phaser.Scene {
     this.tweens.add({ targets: this.viewer, alpha: 1, duration: 200 });
   }
 
-  closePhotos() {
+  // Reglas del juego (botón "?" arriba a la derecha). Textos en narrative.json → rules.
+  openRules() {
+    if (this.viewer) return;
+    const R = narrative.rules, U = config.ui;
+    const pw = 270, pad = 10;
+    const title = this.txt(W / 2, 0, R.title, U.cardText, 2).setOrigin(0.5, 0);
+    const lines = R.lines.map((l) => this.txt(0, 0, wrap(`· ${l}`, pw - pad * 2 - 6), U.text));
+    const close = this.txt(W / 2, 0, R.close, U.textDim).setOrigin(0.5, 0);
+    const bodyH = lines.reduce((h, t) => h + t.height + 3, 0);
+    const ph = pad + 18 + 6 + bodyH + 4 + 10 + pad;
+    const left = (W - pw) / 2, top = Math.round((H - ph) / 2);
+    let y = top + pad;
+    title.setY(y);
+    y += 24;
+    lines.forEach((t) => {
+      t.setPosition(left + pad, y);
+      y += t.height + 3;
+    });
+    close.setY(y + 4);
+    const parts = [
+      this.add.rectangle(0, 0, W, H, col('negro'), 0.8).setOrigin(0),
+      this.add.rectangle(left - 1, top - 1, pw + 2, ph + 2, col(U.panelLine)).setOrigin(0),
+      this.add.rectangle(left, top, pw, ph, col(U.panel)).setOrigin(0),
+      title, ...lines, close,
+    ];
+    this.viewer = parts.map((o, i) => this.ui(o, 6000 + i).setAlpha(0));
+    this.tweens.add({ targets: this.viewer, alpha: 1, duration: 200 });
+  }
+
+  closeViewer() {
     const v = this.viewer;
     this.viewer = null;
     this.tweens.add({ targets: v, alpha: 0, duration: 150, onComplete: () => v.forEach((o) => o.destroy()) });
@@ -341,6 +370,21 @@ export default class DeskScene extends Phaser.Scene {
 
     this.buildButtons();
 
+    // Botón de reglas ("?") arriba a la derecha.
+    const rb = { x: W - 17, y: 4, s: 13 };
+    const ring = keep(this.ui(this.add.rectangle(rb.x, rb.y, rb.s, rb.s, col(U.panelLine)).setOrigin(0), 1001));
+    keep(this.ui(this.add.rectangle(rb.x + 1, rb.y + 1, rb.s - 2, rb.s - 2, col(U.hudBg), 0.85).setOrigin(0), 1002));
+    keep(this.ui(this.txt(rb.x + 7, rb.y + 3, narrative.rules.button, U.text).setOrigin(0.5, 0), 1003));
+    keep(this.ui(this.add.zone(rb.x, rb.y, rb.s, rb.s).setOrigin(0), 1004))
+      .setInteractive({ cursor: CURSOR.hover })
+      .on('pointerover', () => ring.setFillStyle(col('hueso')))
+      .on('pointerout', () => ring.setFillStyle(col(U.panelLine)))
+      .on('pointerdown', (p, lx, ly, ev) => {
+        ev.stopPropagation();
+        if (this.viewer) return this.closeViewer();
+        if (this.dayStarted && !['finale', 'asleep', 'end'].includes(this.state)) this.openRules();
+      });
+
     // Overlays de transición
     this.flash = this.ui(this.add.rectangle(0, 0, W, H, col('blanco'), 0).setOrigin(0), 4000);
     this.black = this.ui(this.add.rectangle(0, 0, W, H, col('negro'), 1).setOrigin(0), 5000);
@@ -493,7 +537,7 @@ export default class DeskScene extends Phaser.Scene {
   }
 
   onAdvance() {
-    if (this.viewer) return this.closePhotos();
+    if (this.viewer) return this.closeViewer();
     if (this.state === 'end') return this.scene.start('Menu');
     if (this.typingDone) return this.typingDone();
     if (this.continueResolve) {
@@ -775,7 +819,7 @@ export default class DeskScene extends Phaser.Scene {
 
   async choose(i) {
     const a = actions.list[i];
-    if (this.viewer) return this.closePhotos();
+    if (this.viewer) return this.closeViewer();
     if (!a || this.state !== 'choose') return;
     if (a.id === 'ayuda' && this.helpOn) return this.askForHelp();
     if (a.disabled) return this.refuse(i);
