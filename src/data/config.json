@@ -183,7 +183,7 @@
       {
         "id": "teclado",
         "synth": "keyboard",
-        "file": null,
+        "file": "audio/tecleo.ogg",
         "min": 0.05,
         "max": 0.5,
         "from": 0,
@@ -210,7 +210,7 @@
       {
         "id": "respiracion",
         "synth": "breath",
-        "file": null,
+        "file": "audio/respiracion.ogg",
         "min": 0,
         "max": 0.6,
         "from": 45,

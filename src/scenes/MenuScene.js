@@ -9,7 +9,8 @@ import { settings, maxZoom, currentZoom, applyZoom } from '../systems/settings.j
 const { width: W, height: H } = config.meta;
 // Opciones de cada página del menú.
 const PAGES = {
-  main: ['start', 'config', 'credits'],
+  // "Salir" solo en la versión de escritorio (.exe), que expone window.desktop (electron/preload.cjs)
+  main: ['start', 'config', 'credits', ...(window.desktop ? ['quit'] : [])],
   config: ['sound', 'resolution', 'back'],
   credits: ['back'],
   achievements: ['back'],
@@ -49,7 +50,8 @@ export default class MenuScene extends Phaser.Scene {
     this.lineBottom = this.add.rectangle(W / 2, 0, 156, 1, col('ciudad_3'));
     this.highlight = this.add.rectangle(W / 2, 0, 150, 12, col('ciudad_5'));
 
-    this.items = [0, 1, 2].map((i) => {
+    const slots = Math.max(...Object.values(PAGES).map((p) => p.length));
+    this.items = Array.from({ length: slots }, (_, i) => {
       const text = this.add.bitmapText(W / 2, 0, 'pixel', '').setOrigin(0.5, 0);
       const zone = this.add.zone(W / 2, 0, 150, 13).setInteractive({ cursor: CURSOR.hover });
       zone.on('pointerover', () => this.select(i));
@@ -300,6 +302,7 @@ export default class MenuScene extends Phaser.Scene {
     if (id === 'start') return this.activate();
     if (id === 'config' || id === 'credits') return this.go(id);
     if (id === 'back') return this.go('main');
+    if (id === 'quit') return window.desktop.quit();
     this.change(dir);
   }
 

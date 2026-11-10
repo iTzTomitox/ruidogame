@@ -8,6 +8,21 @@ npm run dev      # http://localhost:5173
 npm run build    # sale en dist/
 ```
 
+## Versión de escritorio (.exe)
+
+```
+npm run app      # compila y abre el juego en una ventana (Electron), para probar
+npm run exe      # genera release/RUIDO.exe (un solo archivo, portable, no se instala)
+```
+
+La ventana arranca en 1280x720 (320x180 por 4); `F11` alterna pantalla completa. En el menú aparece
+**Salir** (solo en el .exe). El link del cortometraje se abre en el navegador. El código de la ventana
+está en `electron/` y el ícono en `build/icon.png`.
+
+Si `npm run exe` falla con "Cannot create symbolic link" (winCodeSign), es un problema de permisos de
+Windows con unos archivos de Mac que no se usan: descomprimí a mano el `.7z` de
+`%LOCALAPPDATA%\electron-builder\Cache\winCodeSign` en una carpeta `winCodeSign-2.6.0` al lado y volvé a correrlo.
+
 El juego arranca en un menú (ciudad al atardecer pintada por código, painter `city`) con
 **Empezar**, **Configuración** (Sonido 0–100% y Resolución, de 320x180 a la máxima que entra en la ventana)
 y **Créditos** (`narrative.json → credits`).

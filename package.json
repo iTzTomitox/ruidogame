@@ -6,12 +6,41 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "app": "vite build && electron .",
+    "exe": "vite build && electron-builder --win portable"
   },
   "dependencies": {
     "phaser": "^3.80.1"
   },
   "devDependencies": {
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8",
     "vite": "^5.4.10"
+  },
+  "allowScripts": {
+    "electron@33.4.11": true
+  },
+  "description": "RUIDO: juego narrativo basado en el cortometraje.",
+  "author": "Beron Tomas",
+  "main": "electron/main.cjs",
+  "build": {
+    "appId": "com.ruido.juego",
+    "productName": "RUIDO",
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "build/icon.png"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "portable",
+      "icon": "build/icon.png"
+    },
+    "portable": {
+      "artifactName": "RUIDO.exe"
+    }
   }
 }
